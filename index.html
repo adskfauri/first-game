@@ -2,35 +2,39 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>칼퇴 서바이벌</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>칼퇴 서바이벌: 버그 지옥</title>
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
     <main class="game-container">
-        <h1>칼퇴 서바이벌</h1>
+        <section class="game-header">
+            <div>
+                <p class="eyebrow">OFFICE ESCAPE GAME</p>
+                <h1>칼퇴 서바이벌</h1>
+                <p class="subtitle">화면을 누른 채 캐릭터를 움직여 버그를 피하고 100점을 달성하세요.</p>
+            </div>
 
-        <p>
-            ← → 방향키로 장애물을 피하세요.
-        </p>
+            <div class="legend" aria-label="게임 아이템 안내">
+                <span>☕ 속도 증가</span>
+                <span>🛡️ 1회 방어</span>
+                <span>💣 장애물 제거</span>
+            </div>
+        </section>
 
-        <canvas
-            id="gameCanvas"
-            width="600"
-            height="700"
-        ></canvas>
+        <section class="game-stage">
+            <canvas id="gameCanvas" width="600" height="760"></canvas>
 
-        <button
-            type="button"
-            id="restartButton"
-        >
-            다시 시작
-        </button>
+            <div class="touch-controls">
+                <button type="button" id="leftButton" class="control-button">◀</button>
+                <button type="button" id="rightButton" class="control-button">▶</button>
+            </div>
+        </section>
+
+        <div class="actions">
+            <button type="button" id="restartButton" class="restart-button">다시 도전하기</button>
+            <p>PC: 방향키 또는 WASD · 모바일: 화면을 꾹 누르고 드래그</p>
+        </div>
     </main>
 
     <script src="./game.js"></script>
