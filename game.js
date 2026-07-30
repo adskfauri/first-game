@@ -3,6 +3,11 @@ const ctx = canvas.getContext("2d");
 const restartButton = document.getElementById("restartButton");
 const leftButton = document.getElementById("leftButton");
 const rightButton = document.getElementById("rightButton");
+const targetScoreModal = document.getElementById("targetScoreModal");
+const scoreOptionButtons = document.querySelectorAll(".score-option");
+
+let targetScore = 300;
+let gameStarted = false;
 
 const keys = { left: false, right: false, up: false, down: false };
 
@@ -82,6 +87,9 @@ function roundedRect(x, y, width, height, radius) {
 
 function resetGame() {
     cancelAnimationFrame(state.animationFrameId);
+
+    gameStarted = true;
+    targetScoreModal.classList.add("hidden");
 
     player.x = canvas.width / 2 - player.width / 2;
     player.y = canvas.height - player.height - 28;
@@ -579,7 +587,7 @@ function drawHud(now) {
     ctx.fillStyle = "#ffffff";
     ctx.textAlign = "left";
     ctx.font = "800 24px Arial";
-    ctx.fillText(`점수 ${Math.floor(state.score)}`, 34, 48);
+    ctx.fillText(`점수 ${Math.floor(state.score)} / ${targetScore}`, 34, 48);
 
     ctx.font = "14px Arial";
     ctx.fillStyle = "#94a3b8";
@@ -637,7 +645,7 @@ function drawVictory(now) {
     ctx.textAlign = "center";
     ctx.fillStyle = "#dbeafe";
     ctx.font = "700 20px Arial";
-    ctx.fillText("100점을 달성하고 버그 지옥에서 탈출했습니다!", canvas.width / 2, 366);
+    ctx.fillText("${targetScore}점을 달성하고 버그 지옥에서 탈출했습니다!", canvas.width / 2, 366);
 
     ctx.fillStyle = "rgba(15, 23, 42, 0.88)";
     roundedRect(108, 399, 384, 92, 18);
@@ -741,10 +749,7 @@ function gameLoop(now) {
         state.survived = (now - state.startedAt) / 1000;
         state.score += delta * 0.008;
 
-        if (state.score >= 100) {
-            state.score = Math.max(100, state.score);
-            startVictory(now);
-        }
+      state.score >= targetScore
 
         const obstacleInterval = Math.max(320, 880 - state.survived * 9);
         if (now - state.lastObstacleAt > obstacleInterval) {
@@ -762,7 +767,7 @@ function gameLoop(now) {
             updateObjects(delta, now);
 
             if (state.score >= 100) {
-                state.score = Math.max(100, state.score);
+                state.score = Math.max(targetScore, state.score);
                 startVictory(now);
             }
         }
@@ -908,6 +913,35 @@ canvas.addEventListener("lostpointercapture", () => {
 bindHoldButton(leftButton, "left");
 bindHoldButton(rightButton, "right");
 
-restartButton.addEventListener("click", resetGame);
+function showTargetScoreSelector() {
+    gameStarted = false;
 
-resetGame();
+    cancelAnimationFrame(state.animationFrameId);
+
+    keys.left = false;
+    keys.right = false;
+    keys.up = false;
+    keys.down = false;
+
+    touchControl.active = false;
+    touchControl.pointerId = null;
+
+    targetScoreModal.classList.remove("hidden");
+}
+
+scoreOptionButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+        const selectedScore = Number(button.dataset.score);
+
+        if (!Number.isFinite(selectedScore) || selectedScore <= 0) {
+            return;
+        }
+
+        targetScore = selectedScore;
+        resetGame();
+    });
+});
+
+restartButton.addEventListener("click", showTargetScoreSelector);
+
+showTargetScoreSelector();
