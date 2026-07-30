@@ -15,6 +15,18 @@ const player = {
     speed: 7
 };
 
+const images = {
+    player: new Image(),
+    bug: new Image(),
+    background: new Image(),
+    coffee: new Image()
+};
+
+images.player.src = "./assets/developer.png";
+images.bug.src = "./assets/bug.png";
+images.background.src = "./assets/office-bg.png";
+images.coffee.src = "./assets/coffee.png";
+
 let obstacles = [];
 let score = 0;
 let gameOver = false;
@@ -90,6 +102,26 @@ function isColliding(first, second) {
         first.x + first.width > second.x &&
         first.y < second.y + second.height &&
         first.y + first.height > second.y
+    );
+}
+
+function drawPlayer() {
+    context.drawImage(
+        images.player,
+        player.x,
+        player.y,
+        player.width,
+        player.height
+    );
+}
+
+function drawBackground() {
+    context.drawImage(
+        images.background,
+        0,
+        0,
+        canvas.width,
+        canvas.height
     );
 }
 
@@ -195,6 +227,94 @@ function gameLoop(timestamp) {
     drawObstacles();
     drawScore();
     drawGameOver();
+}
+
+function drawPlayer() {
+    const centerX = player.x + player.width / 2;
+
+    // 몸 그림자
+    context.fillStyle = "rgba(0, 0, 0, 0.25)";
+    context.beginPath();
+    context.ellipse(
+        centerX,
+        player.y + player.height + 8,
+        28,
+        7,
+        0,
+        0,
+        Math.PI * 2
+    );
+    context.fill();
+
+    // 몸
+    context.fillStyle = "#2563eb";
+    context.fillRect(player.x + 10, player.y + 24, 40, 30);
+
+    // 얼굴
+    context.fillStyle = "#f5cfa0";
+    context.beginPath();
+    context.arc(centerX, player.y + 18, 17, 0, Math.PI * 2);
+    context.fill();
+
+    // 머리카락
+    context.fillStyle = "#252525";
+    context.beginPath();
+    context.arc(centerX, player.y + 13, 18, Math.PI, Math.PI * 2);
+    context.fill();
+
+    // 눈
+    context.fillStyle = "#252525";
+    context.beginPath();
+    context.arc(centerX - 6, player.y + 19, 2, 0, Math.PI * 2);
+    context.arc(centerX + 6, player.y + 19, 2, 0, Math.PI * 2);
+    context.fill();
+
+    // 노트북
+    context.fillStyle = "#94a3b8";
+    context.fillRect(player.x + 15, player.y + 38, 30, 17);
+}
+
+function drawBugObstacle(obstacle) {
+    context.save();
+
+    // 그림자
+    context.fillStyle = "rgba(0, 0, 0, 0.25)";
+    context.fillRect(
+        obstacle.x + 4,
+        obstacle.y + 5,
+        obstacle.width,
+        obstacle.height
+    );
+
+    // 메시지 박스
+    context.fillStyle = "#ef4444";
+    context.beginPath();
+    context.roundRect(
+        obstacle.x,
+        obstacle.y,
+        obstacle.width,
+        obstacle.height,
+        10
+    );
+    context.fill();
+
+    // 말풍선 꼬리
+    context.beginPath();
+    context.moveTo(obstacle.x + 12, obstacle.y + obstacle.height);
+    context.lineTo(obstacle.x + 20, obstacle.y + obstacle.height + 9);
+    context.lineTo(obstacle.x + 26, obstacle.y + obstacle.height);
+    context.fill();
+
+    context.fillStyle = "#ffffff";
+    context.font = "bold 13px Arial";
+    context.textAlign = "center";
+    context.fillText(
+        "BUG!",
+        obstacle.x + obstacle.width / 2,
+        obstacle.y + 21
+    );
+
+    context.restore();
 }
 
 document.addEventListener("keydown", function (event) {
