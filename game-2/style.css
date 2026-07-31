@@ -1034,4 +1034,138 @@ select:focus {
   .court-vote-buttons { grid-template-columns:1fr; }
 }
 
-.build-version{position:fixed;right:8px;bottom:6px;font-size:10px;color:rgba(255,255,255,.25);z-index:2;pointer-events:none;}
+
+/* 2026 리빌드 UX */
+:root {
+  --court-red: #ff5d72;
+  --court-gold: #ffc857;
+  --court-green: #65d6ad;
+}
+
+.field-help {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.step-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 5px 12px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  color: #ddd8ff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.lead-copy {
+  margin: 10px 0 22px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.claim-card {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0;
+  padding: 18px;
+  border: 1px solid rgba(255,200,87,.35);
+  border-radius: 18px;
+  background: rgba(255,200,87,.07);
+  text-align: left;
+}
+
+.claim-card span,
+.court-mission-reveal span,
+.court-penalty-reveal span,
+.suspect-judge-card > span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.claim-card strong {
+  color: #ffe19b;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.claim-card hr {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid rgba(255,255,255,.1);
+}
+
+.suspect-judge-card {
+  display: grid;
+  gap: 10px;
+  padding: 20px;
+  border: 1px solid rgba(101,214,173,.4);
+  border-radius: 18px;
+  background: rgba(101,214,173,.07);
+  text-align: left;
+}
+
+.suspect-judge-card > strong {
+  color: #9af0d0;
+  font-size: 19px;
+  line-height: 1.55;
+}
+
+.judge-lock {
+  margin-bottom: 8px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.07);
+  text-align: center;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.judge-buttons {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.penalty-action-area {
+  margin: 16px 0;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255,200,87,.08);
+}
+
+.host-review {
+  margin-top: 18px;
+  padding: 12px;
+  border-top: 1px dashed rgba(255,255,255,.15);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.game-actions {
+  position: sticky;
+  bottom: 12px;
+  z-index: 5;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 18px;
+  background: rgba(18,18,30,.88);
+  backdrop-filter: blur(12px);
+}
+
+#reportPlayerButton {
+  font-weight: 950;
+  letter-spacing: -.02em;
+}
+
+@media (min-width: 620px) {
+  .judge-buttons {
+    grid-template-columns: 1fr 1fr;
+  }
+}
