@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#101018" />
   <title>완전범죄 - 집들이 비밀 미션 게임</title>
-  <link rel="stylesheet" href="./style.css?v=20260731-court-mega-2" />
+  <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
   <main class="app-shell">
@@ -67,10 +67,11 @@
       <div class="panel compact">
         <h3>게임 방법</h3>
         <ol class="rule-list">
-          <li>각자 휴대폰에서 비밀 미션을 확인한다.</li>
-          <li>대화 중 자연스럽게 미션을 수행한다.</li>
-          <li>수상한 사람은 신고하고, 성공하면 직접 완료한다.</li>
-          <li>결과에 따라 걸린 사람이 한 모금!</li>
+          <li>각자 비밀 지령을 확인하고 자연스럽게 수행한다.</li>
+          <li>지령을 알아챘다면 <b>이의 있습니다!</b>를 누른다.</li>
+          <li>용의자·추측 지령·근거를 작성하면 전원 게임이 멈춘다.</li>
+          <li>지목당한 사람이 실제 지령과 비교해 솔직하게 판정한다.</li>
+          <li>맞히면 지령 공개, 틀리면 제보자가 민망 벌칙을 수행한다.</li>
         </ol>
       </div>
 
@@ -78,10 +79,11 @@
         <label class="field">
           <span>라운드 시간</span>
           <select id="roundDurationSelect">
-            <option value="120">2분</option>
-            <option value="180" selected>3분</option>
-            <option value="240">4분</option>
+            <option value="300">빠른 게임 · 5분</option>
+            <option value="420" selected>추천 · 7분</option>
+            <option value="600">여유롭게 · 10분</option>
           </select>
+          <small class="field-help">재판 중에는 시간이 흐르지 않습니다.</small>
         </label>
         <button id="startGameButton" class="button primary">게임 시작</button>
       </div>
@@ -95,7 +97,7 @@
       <header class="topbar mission-topbar">
         <div>
           <p class="eyebrow">ROUND <span id="roundNumberText">1</span></p>
-          <h2 id="timerText">03:00</h2>
+          <h2 id="timerText">07:00</h2>
         </div>
         <span id="missionStatusBadge" class="badge danger">절대 들키지 마</span>
       </header>
@@ -107,12 +109,13 @@
       </article>
 
       <div class="warning-card">
-        다른 사람에게 화면을 보여주지 마세요 👀
+        화면은 비밀로 유지하세요. 지령을 알아챘다면 사람뿐 아니라
+        <b>무슨 지령인지까지 추리</b>해야 합니다 👀
       </div>
 
       <div class="game-actions">
         <button id="completeMissionButton" class="button success">미션 성공!</button>
-        <button id="reportPlayerButton" class="button danger">수상한 사람 신고</button>
+        <button id="reportPlayerButton" class="button danger">⚖️ 이의 있습니다!</button>
       </div>
 
       <div id="hostRoundControls" class="host-round-controls hidden">
@@ -123,31 +126,38 @@
     <section id="reportScreen" class="screen">
     <div class="container narrow">
       <div class="card objection-create-card">
-        <p class="eyebrow">EMERGENCY COURT</p>
+        <div class="step-chip">1 / 4 · 지령 추리</div>
         <div class="objection-gavel">⚖️</div>
         <h1>이의 있습니다!</h1>
-        <p class="muted">
-          용의자와 근거를 제출하면 모든 플레이가 즉시 멈춥니다.<br />
-          이번 라운드에 한 번만 사용할 수 있습니다.
+        <p class="lead-copy">
+          수상한 사람의 <b>실제 지령 내용</b>을 추리해 주세요.<br />
+          제출하면 전원의 미션과 타이머가 즉시 멈춥니다.
         </p>
 
         <label class="field">
-          <span>용의자</span>
+          <span>① 수상한 사람</span>
           <select id="accusedPlayerSelect"></select>
         </label>
 
         <label class="field">
-          <span>무엇이 수상했나요?</span>
+          <span>② 그 사람이 받은 것 같은 지령</span>
+          <textarea id="guessedMissionInput" maxlength="160"
+            placeholder="예: 건우에게 계속 물을 마시게 하는 지령"></textarea>
+          <small class="field-help">대상과 행동을 함께 적어야 인정받기 쉽습니다.</small>
+        </label>
+
+        <label class="field">
+          <span>③ 그렇게 생각한 근거</span>
           <textarea id="accusationReasonInput" maxlength="200"
-            placeholder="예: 아까부터 나에게 물을 마시라고 계속 유도했습니다."></textarea>
+            placeholder="예: 아까부터 건우에게 목마르지 않냐고 여러 번 물어봤다."></textarea>
         </label>
 
         <div class="warning-box">
-          틀린 제보라면 신원이 공개되고 랜덤 민망 벌칙을 수행합니다 🤡
+          추리가 틀리면 제보자의 신원이 공개되고 랜덤 민망 벌칙을 수행합니다 🤡
         </div>
 
-        <button id="submitObjectionButton" class="button danger">⚖️ 재판 열기</button>
-        <button id="cancelReportButton" class="button ghost">돌아가기</button>
+        <button id="submitObjectionButton" class="button danger">⚖️ 모두 멈추고 제보하기</button>
+        <button id="cancelReportButton" class="button ghost">아직 더 지켜보기</button>
       </div>
     </div>
   </section>
@@ -156,13 +166,22 @@
     <div class="container narrow">
       <div class="card court-card">
         <div class="court-stop-banner">🛑 전원 정지 · 미션 타이머 일시정지</div>
-        <p id="courtPhaseBadge" class="court-phase-badge">익명 제보 시간</p>
+        <div id="courtStepChip" class="step-chip">2 / 4 · 공개 제보</div>
+
         <div class="objection-gavel">⚖️</div>
-        <h1>긴급 재판</h1>
+        <h1 id="courtMainTitle">긴급 재판</h1>
+        <p id="courtGuideText" class="lead-copy">익명 제보 내용을 읽고 자유롭게 이야기하세요.</p>
 
         <article class="court-suspect-card">
-          <span>지목된 용의자</span>
+          <span>지목된 사람</span>
           <strong id="courtSuspectName"></strong>
+        </article>
+
+        <article class="claim-card">
+          <span>익명 제보자가 추측한 지령</span>
+          <strong id="courtGuessText"></strong>
+          <hr />
+          <span>수상하다고 생각한 근거</span>
           <p id="courtClaimText"></p>
         </article>
 
@@ -171,30 +190,51 @@
         <div id="courtChatArea">
           <div id="courtChatList" class="court-chat-list"></div>
           <div class="court-chat-compose">
-            <input id="courtChatInput" maxlength="200" placeholder="익명으로 증거·반박·의견 입력" />
+            <input id="courtChatInput" maxlength="200" placeholder="익명으로 의견이나 해명을 입력하세요" />
             <button id="courtChatSendButton" class="button secondary">전송</button>
           </div>
-          <button id="openVoteButton" class="button primary hidden">제보 종료 · 투표 시작</button>
+          <button id="openVoteButton" class="button primary hidden">지목당한 사람의 판정으로 이동</button>
         </div>
 
         <div id="courtVoteArea" class="hidden">
-          <h2>배심원 최종 투표</h2>
-          <p id="courtVoteNotice" class="muted"></p>
-          <div class="court-vote-buttons">
-            <button class="button danger" data-court-vote="guilty">🚨 범인이다</button>
-            <button class="button ghost" data-court-vote="innocent">🕊️ 무죄다</button>
+          <article id="suspectJudgeCard" class="suspect-judge-card">
+            <div class="judge-lock">🔐 지목당한 사람에게만 보이는 판정 화면</div>
+            <span>나의 실제 지령</span>
+            <strong id="suspectActualMission"></strong>
+            <span>제보자의 추측</span>
+            <p id="suspectGuessMission"></p>
+
+            <div id="suspectJudgeButtons" class="judge-buttons">
+              <button id="suspectCorrectButton" class="button success">⭕ 핵심 지령을 맞혔다</button>
+              <button id="suspectWrongButton" class="button danger">❌ 지령이 다르다</button>
+            </div>
+          </article>
+
+          <div id="judgeWaitingCard" class="waiting-card hidden">
+            지목당한 사람이 실제 지령과 비교해 판정하고 있습니다…
           </div>
-          <button id="revealCourtButton" class="button primary hidden">판결 공개!</button>
         </div>
 
         <div id="courtRevealArea" class="hidden court-reveal-area">
-          <div id="courtRevealEmoji" class="court-reveal-emoji">🚨</div>
+          <div id="courtRevealEmoji" class="court-reveal-emoji">🎯</div>
           <h2 id="courtRevealTitle"></h2>
           <p id="courtRevealSummary"></p>
+
           <article id="courtMissionReveal" class="court-mission-reveal hidden"></article>
           <article id="courtPenaltyReveal" class="court-penalty-reveal hidden"></article>
-          <div id="courtVoteResultList" class="court-vote-result-list"></div>
-          <button id="resumeGameButton" class="button primary hidden">재판 종료 · 게임 재개</button>
+
+          <div id="penaltyActionArea" class="penalty-action-area hidden">
+            <p>벌칙을 모두 보는 앞에서 수행한 뒤 완료를 눌러 주세요.</p>
+            <button id="penaltyDoneButton" class="button success hidden">🤡 민망 벌칙 수행 완료</button>
+            <div id="penaltyWaitingText" class="waiting-card hidden">제보자가 벌칙을 수행 중입니다…</div>
+          </div>
+
+          <div id="hostCourtReview" class="host-review hidden">
+            <p>판정이 명백히 부당한 경우에만 방장이 변경할 수 있습니다.</p>
+            <button id="overrideCourtButton" class="button ghost">방장: 판정 뒤집기</button>
+          </div>
+
+          <button id="resumeGameButton" class="button primary hidden">재판 종료 · 남은 시간 계속하기</button>
         </div>
       </div>
     </div>
@@ -312,8 +352,7 @@
 
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-database-compat.js"></script>
-  <script src="./firebase-config.js?v=20260731-court-mega-2"></script>
-  <script src="./app.js?v=20260731-court-mega-2"></script>
-<div class="build-version">COURT-MEGA-2</div>
+  <script src="./firebase-config.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
