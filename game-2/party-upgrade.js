@@ -2,6 +2,20 @@
   "use strict";
   const $ = (s) => document.querySelector(s);
   const cards = ["hideMission","shuffleMission","fakeMission","fakeTarget","runButton"];
+  const FAKE_MISSIONS = [
+    "{target}에게 가장 좋아하는 여행지를 물어보세요.",
+    "{target}에게 최근 재미있게 본 영화를 물어보세요.",
+    "{target}에게 건배를 먼저 제안하게 만드세요.",
+    "{target}에게 오늘 가장 맛있었던 음식을 물어보세요.",
+    "{target}에게 어릴 때 꿈이 무엇이었는지 물어보세요."
+  ];
+
+  function createFakeMission(targetName) {
+    const template =
+      FAKE_MISSIONS[Math.floor(Math.random() * FAKE_MISSIONS.length)];
+
+    return template.replace("{target}", targetName);
+  }
   let lastEffectId="", lastMiniId="", tapCount=0, targetTimer=null, targetValue=0;
 
   function api(){ return window.PARTY_GAME_API; }
@@ -14,12 +28,27 @@
     if(Date.now()<Number(me.sabotageReadyAt||0)){ showToast("방해 카드가 아직 충전 중입니다."); return; }
     const targetId=$("#sabotageTargetSelect")?.value;
     if(!targetId) return;
-    const type=cards[Math.floor(Math.random()*cards.length)];
-    const now=Date.now();
+    const type = cards[Math.floor(Math.random() * cards.length)];
+    const now = Date.now();
+
+    const targetPlayer = state.room?.players?.[targetId];
+
+    const fakeMissionText =
+      type === "fakeMission"
+        ? createFakeMission(targetPlayer?.nickname || "누군가")
+        : "";
+
     await roomRef().update({
-      [`players/${targetId}/sabotageEffect`]:{id:`${state.playerId}-${now}`,type,fromName:state.nickname,startedAt:now,endsAt:now+15000},
-      [`players/${state.playerId}/sabotageReadyAt`]:now+30000
-    });
+    [`players/${targetId}/sabotageEffect`]: {
+      id: `${state.playerId}-${now}`,
+      type,
+      fromName: state.nickname,
+      fakeMissionText,
+      startedAt: now,
+      endsAt: now + 15000
+    },
+    [`players/${state.playerId}/sabotageReadyAt`]: now + 30000
+  });
     showToast("방해 카드 사용 완료! 👻");
   }
 
@@ -42,24 +71,76 @@
     setupMini(state);
   }
 
-  function applyEffect(state){
-    const e=state.player?.sabotageEffect, body=document.body, banner=$("#sabotageEffectBanner");
-    body.classList.remove("party-mission-hidden","party-mission-shuffled","party-run-button","party-fake-mission");
-    if(!e||Date.now()>Number(e.endsAt||0)||state.player?.isSaboteur){ banner?.classList.add("hidden"); return; }
-    const labels={hideMission:"15초 동안 지령 가리기",shuffleMission:"지령 문장 뒤섞기",fakeMission:"가짜 지령 표시",fakeTarget:"가짜 대상 표시",runButton:"완료 버튼 도망가기"};
-    if(banner){banner.textContent=`👻 ${e.fromName}의 방해: ${labels[e.type]}`;banner.classList.remove("hidden");}
-    if(e.type==="hideMission") body.classList.add("party-mission-hidden");
-    if(e.type==="shuffleMission"){
+  function applyEffect(state) {
+    const e = state.player?.sabotageEffect;
+    const body = document.body;
+    const banner = $("#sabotageEffectBanner");
+
+    body.classList.remove(
+      "party-mission-hidden",
+      "party-mission-shuffled",
+      "party-run-button",
+      "party-fake-mission"
+    );
+
+    if (
+      !e ||
+      Date.now() > Number(e.endsAt || 0) ||
+      state.player?.isSaboteur
+    ) {
+      banner?.classList.add("hidden");
+      return;
+    }
+
+    const labels = {
+      hideMission: "15초 동안 지령 가리기",
+      shuffleMission: "지령 문장 뒤섞기",
+      fakeMission: "가짜 지령 표시",
+      fakeTarget: "가짜 대상 표시",
+      runButton: "완료 버튼 도망가기"
+    };
+
+    if (banner) {
+      if (e.type === "fakeMission") {
+        banner.classList.add("hidden");
+      } else {
+        banner.textContent = `👻 ${e.fromName}의 방해: ${labels[e.type]}`;
+        banner.classList.remove("hidden");
+      }
+    }
+
+    if (e.type === "hideMission") {
+      body.classList.add("party-mission-hidden");
+    }
+
+    if (e.type === "shuffleMission") {
       body.classList.add("party-mission-shuffled");
-      if(e.id!==lastEffectId&&$("#missionText")) $("#missionText").textContent=String(state.player.mission?.text||"").split(" ").sort(()=>Math.random()-.5).join(" / ");
+
+      if (e.id !== lastEffectId && $("#missionText")) {
+        $("#missionText").textContent =
+          String(state.player.mission?.text || "")
+            .split(" ")
+            .sort(() => Math.random() - 0.5)
+            .join(" / ");
+      }
     }
-    if(e.type==="runButton") body.classList.add("party-run-button");
-    if(e.type==="fakeMission"){
-      body.classList.add("party-fake-mission");
-      if($("#missionText")) $("#missionText").textContent="가짜 지령: 아무에게나 갑자기 건배를 제안하세요";
+
+    if (e.type === "runButton") {
+      body.classList.add("party-run-button");
     }
-    if(e.type==="fakeTarget"&&$("#missionText")) $("#missionText").textContent="대상 정보 교란 중: 누군가에게 원래 지령을 수행하세요";
-    lastEffectId=e.id;
+
+    if (e.type === "fakeMission" && $("#missionText")) {
+      $("#missionText").textContent =
+        e.fakeMissionText ||
+        "누군가에게 최근 재미있게 본 영화를 물어보세요.";
+    }
+
+    if (e.type === "fakeTarget" && $("#missionText")) {
+      $("#missionText").textContent =
+        "누군가에게 원래 지령을 수행하세요.";
+    }
+
+    lastEffectId = e.id;
   }
 
   function setupMini(state){
