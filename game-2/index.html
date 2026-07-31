@@ -121,29 +121,115 @@
     </section>
 
     <section id="reportScreen" class="screen">
-      <header class="simple-header">
-        <button id="cancelReportButton" class="icon-button" type="button">←</button>
-        <div>
-          <p class="eyebrow">REPORT</p>
-          <h2>누가 수상해?</h2>
+    <div class="container narrow">
+      <div class="card objection-create-card">
+        <p class="eyebrow">EMERGENCY COURT</p>
+        <div class="objection-gavel">⚖️</div>
+        <h1>이의 있습니다!</h1>
+        <p class="muted">
+          용의자와 근거를 제출하면 모든 플레이가 즉시 멈춥니다.<br />
+          이번 라운드에 한 번만 사용할 수 있습니다.
+        </p>
+
+        <label class="field">
+          <span>용의자</span>
+          <select id="accusedPlayerSelect"></select>
+        </label>
+
+        <label class="field">
+          <span>무엇이 수상했나요?</span>
+          <textarea id="accusationReasonInput" maxlength="200"
+            placeholder="예: 아까부터 나에게 물을 마시라고 계속 유도했습니다."></textarea>
+        </label>
+
+        <div class="warning-box">
+          틀린 제보라면 신원이 공개되고 랜덤 민망 벌칙을 수행합니다 🤡
         </div>
-      </header>
 
-      <p class="screen-description">
-        잘못 신고하면 신고자가 마실 수도 있어. 신중하게 골라! 😈
-      </p>
+        <button id="submitObjectionButton" class="button danger">⚖️ 재판 열기</button>
+        <button id="cancelReportButton" class="button ghost">돌아가기</button>
+      </div>
+    </div>
+  </section>
 
-      <div id="reportPlayerList" class="select-player-list"></div>
-    </section>
+    <section id="courtScreen" class="screen">
+    <div class="container narrow">
+      <div class="card court-card">
+        <div class="court-stop-banner">🛑 전원 정지 · 미션 타이머 일시정지</div>
+        <p id="courtPhaseBadge" class="court-phase-badge">익명 제보 시간</p>
+        <div class="objection-gavel">⚖️</div>
+        <h1>긴급 재판</h1>
 
-    <section id="resultScreen" class="screen">
+        <article class="court-suspect-card">
+          <span>지목된 용의자</span>
+          <strong id="courtSuspectName"></strong>
+          <p id="courtClaimText"></p>
+        </article>
+
+        <p id="courtAccuserNotice" class="court-notice"></p>
+
+        <div id="courtChatArea">
+          <div id="courtChatList" class="court-chat-list"></div>
+          <div class="court-chat-compose">
+            <input id="courtChatInput" maxlength="200" placeholder="익명으로 증거·반박·의견 입력" />
+            <button id="courtChatSendButton" class="button secondary">전송</button>
+          </div>
+          <button id="openVoteButton" class="button primary hidden">제보 종료 · 투표 시작</button>
+        </div>
+
+        <div id="courtVoteArea" class="hidden">
+          <h2>배심원 최종 투표</h2>
+          <p id="courtVoteNotice" class="muted"></p>
+          <div class="court-vote-buttons">
+            <button class="button danger" data-court-vote="guilty">🚨 범인이다</button>
+            <button class="button ghost" data-court-vote="innocent">🕊️ 무죄다</button>
+          </div>
+          <button id="revealCourtButton" class="button primary hidden">판결 공개!</button>
+        </div>
+
+        <div id="courtRevealArea" class="hidden court-reveal-area">
+          <div id="courtRevealEmoji" class="court-reveal-emoji">🚨</div>
+          <h2 id="courtRevealTitle"></h2>
+          <p id="courtRevealSummary"></p>
+          <article id="courtMissionReveal" class="court-mission-reveal hidden"></article>
+          <article id="courtPenaltyReveal" class="court-penalty-reveal hidden"></article>
+          <div id="courtVoteResultList" class="court-vote-result-list"></div>
+          <button id="resumeGameButton" class="button primary hidden">재판 종료 · 게임 재개</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="resultScreen" class="screen">
       <div class="result-card">
         <p class="eyebrow">ROUND RESULT</p>
         <div id="resultEmoji" class="result-emoji">🍻</div>
         <h1 id="resultTitle">결과 공개</h1>
         <p id="resultDescription" class="result-description"></p>
 
-        <div id="roundSummary" class="round-summary"></div>
+        <section class="penalty-board-section">
+          <p class="penalty-board-eyebrow">DRINK PENALTY</p>
+          <h2 class="penalty-board-title">🍻 벌칙자 최종 발표</h2>
+          <div id="penaltyBoard" class="penalty-board"></div>
+        </section>
+
+        <article id="surpriseResultCard" class="surprise-result-card hidden">
+          <span>⚡ 돌발 결과</span>
+          <h3 id="surpriseResultTitle">번개 생존전</h3>
+          <strong id="surpriseLoserText"></strong>
+          <p id="surpriseReasonText"></p>
+        </article>
+
+        <details class="result-detail-toggle">
+          <summary>판정 근거 자세히 보기</summary>
+          <div id="roundSummary" class="round-summary"></div>
+        </details>
+
+        <section id="embarrassmentResultSection" class="embarrassment-result-section hidden">
+          <p class="difficulty-eyebrow">ACTION PENALTY</p>
+          <h2>🤡 민망 벌칙 대상</h2>
+          <div id="embarrassmentResultList" class="embarrassment-result-list"></div>
+        </section>
 
         <section class="difficulty-reveal">
           <p class="difficulty-eyebrow">MISSION DIFFICULTY</p>
@@ -186,6 +272,19 @@
   </main>
 
   <div id="toast" class="toast" role="status"></div>
+
+  <div id="surpriseEventModal" class="modal surprise-event-modal hidden">
+    <div class="modal-card surprise-event-card">
+      <div id="surpriseEmoji" class="surprise-event-emoji">⚡</div>
+      <p class="eyebrow">SURPRISE EVENT</p>
+      <h2 id="surpriseTitle">돌발!</h2>
+      <p id="surpriseDescription"></p>
+      <div id="surpriseCountdown" class="surprise-countdown">8초</div>
+      <button id="surpriseActionButton" class="button surprise-button">
+        생존!
+      </button>
+    </div>
+  </div>
 
   <div id="anonymousReportModal" class="modal hidden">
     <div class="modal-card anonymous-report-card">
