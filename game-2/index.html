@@ -145,6 +145,22 @@
 
         <div id="roundSummary" class="round-summary"></div>
 
+        <section class="difficulty-reveal">
+          <p class="difficulty-eyebrow">MISSION DIFFICULTY</p>
+          <h2>🎭 미션 난이도 공개!</h2>
+          <p>누가 어떤 미션을 받았는지 이제 공개됩니다.</p>
+          <div id="difficultyResultList" class="difficulty-result-list"></div>
+        </section>
+
+        <section class="report-result-section">
+          <p class="difficulty-eyebrow">REPORT HISTORY</p>
+          <h2>🕵️ 신고 결과 공개</h2>
+          <p>진행 중에는 익명이었지만, 이제 누가 누구를 신고했는지 공개됩니다.</p>
+          <div id="reportRelationsList" class="report-relations-list"></div>
+          <h3 class="report-stat-title">개인별 신고 통계</h3>
+          <div id="reportStatsList" class="report-stats-list"></div>
+        </section>
+
         <div id="hostResultControls" class="bottom-actions hidden">
           <button id="nextRoundButton" class="button primary">다음 라운드</button>
           <button id="endGameButton" class="button ghost">게임 종료</button>
@@ -170,6 +186,19 @@
   </main>
 
   <div id="toast" class="toast" role="status"></div>
+
+  <div id="anonymousReportModal" class="modal hidden">
+    <div class="modal-card anonymous-report-card">
+      <div class="anonymous-report-icon">🚨</div>
+      <p class="eyebrow">ANONYMOUS REPORT</p>
+      <h3 id="anonymousReportTitle">익명의 누군가가 당신을 신고했습니다</h3>
+      <p>
+        누가 신고했는지는 결과 발표 때 공개됩니다.<br />
+        지금부터 행동 하나하나 조심하세요 👀
+      </p>
+      <button id="anonymousReportCloseButton" class="button danger">알겠어, 안 들킬게</button>
+    </div>
+  </div>
 
   <div id="confirmModal" class="modal hidden">
     <div class="modal-card">

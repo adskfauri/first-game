@@ -533,3 +533,159 @@ select:focus {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+
+.difficulty-reveal,
+.report-result-section {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  text-align: left;
+}
+
+.difficulty-eyebrow {
+  margin-bottom: 6px;
+  color: #ffca4b;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+
+.difficulty-reveal h2,
+.report-result-section h2 {
+  margin: 0;
+  font-size: 25px;
+}
+
+.difficulty-reveal > p,
+.report-result-section > p {
+  margin: 8px 0 20px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.difficulty-result-list,
+.report-relations-list,
+.report-stats-list {
+  display: grid;
+  gap: 12px;
+}
+
+.difficulty-result-card {
+  position: relative;
+  overflow: hidden;
+  padding: 17px;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: var(--panel-strong);
+}
+
+.difficulty-result-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+}
+
+.difficulty-result-card.easy::before { background: #24c98a; }
+.difficulty-result-card.normal::before { background: #775cff; }
+.difficulty-result-card.hard::before { background: #ff9f43; }
+.difficulty-result-card.crazy::before { background: #ff4f7b; }
+
+.difficulty-result-header,
+.difficulty-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.difficulty-result-header span {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.revealed-mission {
+  margin: 15px 0;
+  color: #e7e7f0;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.difficulty-name {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.difficulty-stars {
+  color: #ffca4b;
+  font-size: 17px;
+  letter-spacing: 2px;
+}
+
+.mission-perfect { color: #5be6b1; }
+.mission-caught { color: #ffca4b; }
+.mission-failed { color: #ff8c90; }
+.mission-innocent { color: #a99cff; }
+
+.report-relation-item,
+.report-stat-item,
+.empty-report {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel-strong);
+}
+
+.report-relation-item span,
+.report-stat-item span,
+.empty-report {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.report-stat-title {
+  margin: 24px 0 12px;
+  font-size: 17px;
+}
+
+.report-stat-item.my-stat {
+  border-color: rgba(119, 92, 255, 0.7);
+  box-shadow: 0 0 0 2px rgba(119, 92, 255, 0.12);
+}
+
+.anonymous-report-card {
+  text-align: center;
+  animation: report-pop 0.35s ease;
+  border-color: rgba(255, 90, 95, 0.45);
+  box-shadow: 0 0 50px rgba(255, 79, 123, 0.2);
+}
+
+.anonymous-report-icon {
+  font-size: 64px;
+  animation: report-shake 0.5s ease 2;
+}
+
+.anonymous-report-card h3 {
+  margin: 8px 0 12px;
+  font-size: 24px;
+  line-height: 1.4;
+}
+
+@keyframes report-pop {
+  from { opacity: 0; transform: scale(0.82); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes report-shake {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-8deg); }
+  75% { transform: rotate(8deg); }
+}

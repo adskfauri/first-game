@@ -1,32 +1,863 @@
 (() => {
   "use strict";
 
+  const MISSION_LEVELS = {
+  "easy": {
+    "name": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  "normal": {
+    "name": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  "hard": {
+    "name": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  "crazy": {
+    "name": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  }
+};
+
   const MISSIONS = [
-    { text: "{target}에게 휴지를 건네세요.", hint: "상대가 직접 받으면 성공" },
-    { text: "{target}이 물을 한 모금 마시게 만드세요.", hint: "직접 권하거나 자연스럽게 유도하기" },
-    { text: "{target}에게 오늘 몇 시에 왔는지 물어보세요.", hint: "정확히 대답까지 들어야 성공" },
-    { text: "{target}의 이름을 대화 중 두 번 부르세요.", hint: "연속으로 부르면 너무 티 날 수 있음" },
-    { text: "{target}과 자연스럽게 건배하세요.", hint: "단체 건배 말고 둘이 잔을 부딪혀야 성공" },
-    { text: "{target}에게 사진을 찍어달라고 부탁하세요.", hint: "실제로 사진을 찍어야 성공" },
-    { text: "{target}이 휴대폰 화면을 확인하게 만드세요.", hint: "알림이 왔다고 속여도 됨" },
-    { text: "{target}에게 음식을 하나 추천받으세요.", hint: "추천한 음식 이름까지 들어야 성공" },
-    { text: "{target}에게 요즘 가장 사고 싶은 것을 물어보세요.", hint: "자연스러운 대화 속에서 시도" },
-    { text: "{target}이 웃게 만드세요.", hint: "억지로 간지럽히기 금지" },
-    { text: "{target}에게 자리에서 한 번 일어나게 만드세요.", hint: "물건을 부탁하거나 자리를 바꿔도 됨" },
-    { text: "{target}에게 '진짜?'라는 말을 듣게 만드세요.", hint: "정확히 그 표현이 나와야 성공" },
-    { text: "{target}에게 음식이나 술을 한 번 받으세요.", hint: "상대가 직접 건네야 성공" },
-    { text: "{target}과 하이파이브하세요.", hint: "손바닥이 실제로 닿아야 성공" },
-    { text: "{target}에게 내일 일정이 있는지 물어보세요.", hint: "대답까지 들어야 성공" },
-    { text: "{target}이 다른 사람 이름을 부르게 만드세요.", hint: "누구의 이름이든 상관없음" },
-    { text: "{target}에게 결혼 또는 연애 이야기를 꺼내게 만드세요.", hint: "직접 먼저 주제를 말하면 실패" },
-    { text: "{target}이 음식 사진을 찍게 만드세요.", hint: "카메라만 켜는 것은 인정하지 않음" },
-    { text: "{target}과 가위바위보를 하세요.", hint: "이유는 자연스럽게 만들어야 함" },
-    { text: "{target}에게 '왜?'라는 말을 듣게 만드세요.", hint: "정확히 왜라는 반응을 끌어내기" },
-    { text: "{target}에게 집들이 선물 이야기를 꺼내게 만드세요.", hint: "직접 선물부터 언급하면 실패" },
-    { text: "{target}이 고개를 끄덕이게 만드세요.", hint: "질문을 이용하면 쉬울 수도 있음" },
-    { text: "{target}에게 손바닥을 보여 달라고 하세요.", hint: "손금을 본다고 해도 됨" },
-    { text: "{target}이 특정 음식을 한입 먹게 만드세요.", hint: "어떤 음식이든 가능" }
-  ];
+  {
+    "text": "{target}에게 휴지를 건네세요.",
+    "hint": "상대가 직접 받으면 성공",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}이 물을 한 모금 마시게 만드세요.",
+    "hint": "직접 권하거나 자연스럽게 유도하기",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}에게 오늘 몇 시에 왔는지 물어보세요.",
+    "hint": "정확한 시간을 들으면 성공",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}의 이름을 대화 중 두 번 부르세요.",
+    "hint": "연속일 필요는 없음",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}과 자연스럽게 건배하세요.",
+    "hint": "단체 건배 말고 둘이 잔을 부딪혀야 성공",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}에게 사진을 찍어달라고 부탁하세요.",
+    "hint": "실제로 사진을 찍어야 성공",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}이 휴대폰 화면을 확인하게 만드세요.",
+    "hint": "직접 화면을 보면 성공",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}에게 음식을 하나 추천받으세요.",
+    "hint": "음식 이름을 들으면 성공",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}에게 요즘 가장 사고 싶은 것을 물어보세요.",
+    "hint": "물건 이름을 들으면 성공",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}이 웃게 만드세요.",
+    "hint": "간지럽히기 금지",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}에게 자리에서 한 번 일어나게 만드세요.",
+    "hint": "물건 부탁이나 자리 이동도 가능",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}에게 음식이나 술을 한 번 받으세요.",
+    "hint": "상대가 직접 건네야 성공",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}과 하이파이브하세요.",
+    "hint": "손바닥이 실제로 닿아야 성공",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}에게 내일 일정이 있는지 물어보세요.",
+    "hint": "대답까지 들어야 성공",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}이 다른 사람 이름을 부르게 만드세요.",
+    "hint": "누구의 이름이든 가능",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}이 고개를 끄덕이게 만드세요.",
+    "hint": "질문을 이용해도 됨",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}에게 손바닥을 보여 달라고 하세요.",
+    "hint": "손금을 본다고 해도 됨",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}이 특정 음식을 한입 먹게 만드세요.",
+    "hint": "어떤 음식이든 가능",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}에게 최근 본 영화나 드라마를 물어보세요.",
+    "hint": "작품 제목을 들으면 성공",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}에게 가장 좋아하는 계절을 물어보세요.",
+    "hint": "계절 이름을 들으면 성공",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}에게 오늘 먹은 첫 음식을 물어보세요.",
+    "hint": "음식명을 들으면 성공",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}에게 지금 시간을 확인하게 만드세요.",
+    "hint": "휴대폰이나 시계를 직접 봐야 성공",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}이 자신의 잔을 들어 보이게 하세요.",
+    "hint": "잔을 손에 들면 성공",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}에게 집에서 가장 마음에 드는 곳을 물어보세요.",
+    "hint": "공간 이름을 들으면 성공",
+    "level": "easy",
+    "levelName": "순한맛",
+    "stars": 1,
+    "emoji": "🙂"
+  },
+  {
+    "text": "{target}에게 '진짜?'라는 말을 듣게 만드세요.",
+    "hint": "정확한 표현이 나와야 성공",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}에게 '왜?'라는 말을 듣게 만드세요.",
+    "hint": "정확히 왜라는 반응을 끌어내기",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}에게 '뭐라고?'라는 말을 듣게 만드세요.",
+    "hint": "못 들은 척하게 만들어도 됨",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}에게 '몰라'라는 말을 듣게 만드세요.",
+    "hint": "질문을 잘 골라야 함",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}에게 '대박'이라는 말을 듣게 만드세요.",
+    "hint": "놀라운 이야기를 자연스럽게 꺼내기",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}에게 '설마'라는 말을 듣게 만드세요.",
+    "hint": "너무 티 나는 거짓말은 금지",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}에게 '맞아'라는 말을 두 번 듣게 만드세요.",
+    "hint": "연속일 필요는 없음",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}에게 '아니'라는 말을 세 번 듣게 만드세요.",
+    "hint": "서로 다른 질문도 가능",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}에게 '잠깐만'이라는 말을 듣게 만드세요.",
+    "hint": "상대가 행동을 멈추게 해도 됨",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}에게 '미쳤다'라는 말을 듣게 만드세요.",
+    "hint": "좋은 의미든 나쁜 의미든 가능",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 자신의 머리카락을 만지게 만드세요.",
+    "hint": "헤어스타일 이야기를 활용",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 양손을 동시에 들게 만드세요.",
+    "hint": "만세나 스트레칭 유도 가능",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 박수를 한 번 치게 만드세요.",
+    "hint": "축하 분위기를 만들어도 됨",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 손가락으로 숫자를 표현하게 만드세요.",
+    "hint": "나이·점수·인원 질문 활용",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}에게 테이블 위 물건 하나를 옮기게 하세요.",
+    "hint": "컵·접시·휴지 모두 가능",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 휴대폰을 뒤집어 놓게 만드세요.",
+    "hint": "화면이 아래로 향해야 성공",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 자신의 잔 위치를 바꾸게 만드세요.",
+    "hint": "앞뒤·좌우 이동 모두 인정",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 냅킨이나 휴지를 접게 만드세요.",
+    "hint": "모양은 상관없음",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 냉장고를 열게 만드세요.",
+    "hint": "음료나 음식 요청 활용",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 자신의 나이를 말하게 만드세요.",
+    "hint": "만 나이든 한국식 나이든 가능",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 숫자 7을 말하게 만드세요.",
+    "hint": "시간·날짜·점수 질문 활용",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 영어 단어를 하나 말하게 만드세요.",
+    "hint": "브랜드명도 인정",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 누군가를 칭찬하게 만드세요.",
+    "hint": "외모·성격·음식 모두 가능",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 누군가에게 고맙다고 말하게 만드세요.",
+    "hint": "감사 표현이 나와야 성공",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 자신의 흑역사 하나를 말하게 만드세요.",
+    "hint": "짧은 이야기라도 인정",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 술 취한 경험을 이야기하게 만드세요.",
+    "hint": "구체적 사건이 나오면 성공",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 첫인상 이야기를 하게 만드세요.",
+    "hint": "누구에 대한 첫인상이든 가능",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 가장 술이 센 사람을 고르게 만드세요.",
+    "hint": "이름을 말하면 성공",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 집주인을 칭찬하게 만드세요.",
+    "hint": "집·음식·준비 중 하나면 성공",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 다른 사람에게 물을 따라주게 만드세요.",
+    "hint": "본인이 아닌 다른 사람이어야 함",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 다른 사람과 건배하게 만드세요.",
+    "hint": "당신과 건배하면 실패",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 다른 사람에게 질문하게 만드세요.",
+    "hint": "질문 내용은 무엇이든 가능",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 다른 사람과 자리를 바꾸게 만드세요.",
+    "hint": "완전히 자리를 교체해야 성공",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 집들이 선물 이야기를 꺼내게 만드세요.",
+    "hint": "직접 먼저 언급하면 실패",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 오늘 음식 중 최고를 고르게 만드세요.",
+    "hint": "음식 이름을 말하면 성공",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}이 자신의 휴대폰 배터리를 확인하게 만드세요.",
+    "hint": "퍼센트까지 말하면 완벽 성공",
+    "level": "normal",
+    "levelName": "눈치싸움",
+    "stars": 2,
+    "emoji": "👀"
+  },
+  {
+    "text": "{target}에게 결혼 또는 연애 이야기를 먼저 꺼내게 만드세요.",
+    "hint": "직접 먼저 주제를 말하면 실패",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 음식 사진을 찍게 만드세요.",
+    "hint": "실제로 촬영해야 성공",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}과 가위바위보를 하세요.",
+    "hint": "자연스러운 이유를 만들어야 함",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 자리에서 몸을 한 바퀴 돌게 만드세요.",
+    "hint": "옷이나 뒷모습을 보여달라고 해도 됨",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 자신의 휴대폰을 다른 사람에게 건네게 만드세요.",
+    "hint": "잠깐 건네는 것도 가능",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}에게 동물 울음소리를 내게 하세요.",
+    "hint": "개·고양이·닭 모두 가능",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}에게 갑자기 손하트를 하게 만드세요.",
+    "hint": "사진 포즈 활용 가능",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 혀를 한 번 내밀게 만드세요.",
+    "hint": "표정 따라 하기를 활용",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 이상한 표정을 3초 이상 짓게 만드세요.",
+    "hint": "실제로 유지해야 성공",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 갑자기 춤을 3초 이상 추게 만드세요.",
+    "hint": "노래나 따라 하기를 활용",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 윙크하게 만드세요.",
+    "hint": "사진 포즈 활용 가능",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 손가락 총 포즈를 하게 만드세요.",
+    "hint": "영화·게임 흉내 활용",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 제자리에서 스쿼트를 한 번 하게 만드세요.",
+    "hint": "운동 자세 이야기 활용",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 아무 노래나 한 소절 부르게 만드세요.",
+    "hint": "5초 이상 부르면 성공",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 갑자기 경례하게 만드세요.",
+    "hint": "군대 이야기나 신고식 활용",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 자신의 이름을 크게 외치게 만드세요.",
+    "hint": "본인이 직접 외쳐야 성공",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 머리 위로 하트를 만들게 하세요.",
+    "hint": "두 팔을 사용해야 인정",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 다른 사람에게 충전기가 있는지 물어보게 만드세요.",
+    "hint": "실제로 질문해야 성공",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 먼저 음악을 바꾸자고 말하게 만드세요.",
+    "hint": "노래·분위기 변경 모두 인정",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 먼저 사진을 찍자고 제안하게 만드세요.",
+    "hint": "셀카든 단체사진이든 가능",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 먼저 단체 건배를 제안하게 만드세요.",
+    "hint": "당신이 먼저 말하면 실패",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 다른 사람과 동시에 같은 말을 하게 만드세요.",
+    "hint": "한 단어만 겹쳐도 성공",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 자신의 휴대폰을 찾게 만드세요.",
+    "hint": "손에 들고 찾으면 대성공",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 한쪽 눈을 감고 무언가를 보게 만드세요.",
+    "hint": "사진이나 시력 테스트 활용",
+    "level": "hard",
+    "levelName": "고난도",
+    "stars": 3,
+    "emoji": "🔥"
+  },
+  {
+    "text": "{target}이 자신의 엉덩이를 한 번 털게 만드세요.",
+    "hint": "춤이나 장난으로 유도 가능",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  },
+  {
+    "text": "{target}이 5초 동안 로봇처럼 말하게 만드세요.",
+    "hint": "로봇 목소리가 확실해야 성공",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  },
+  {
+    "text": "{target}이 자신의 이름으로 삼행시를 하게 만드세요.",
+    "hint": "완성하면 성공",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  },
+  {
+    "text": "{target}이 외계인 흉내를 내게 만드세요.",
+    "hint": "소리나 행동 둘 중 하나면 가능",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  },
+  {
+    "text": "{target}이 3초 동안 모델 워킹을 하게 만드세요.",
+    "hint": "최소 세 걸음 이상",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  },
+  {
+    "text": "{target}이 음식 하나를 광고하듯 소개하게 만드세요.",
+    "hint": "홈쇼핑 말투면 성공",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  },
+  {
+    "text": "{target}이 뉴스 앵커처럼 한 문장 말하게 만드세요.",
+    "hint": "앵커 말투가 나와야 성공",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  },
+  {
+    "text": "{target}이 누군가에게 왕이나 여왕처럼 명령하게 만드세요.",
+    "hint": "명령형 문장을 말해야 성공",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  },
+  {
+    "text": "{target}이 갑자기 손으로 망원경을 만들게 하세요.",
+    "hint": "두 손을 눈 앞에 대면 성공",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  },
+  {
+    "text": "{target}이 만화 캐릭터 말투를 따라 하게 만드세요.",
+    "hint": "한 문장 이상 말해야 성공",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  },
+  {
+    "text": "{target}이 5초 동안 슬로모션으로 움직이게 만드세요.",
+    "hint": "움직임이 확실히 느려야 성공",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  },
+  {
+    "text": "{target}이 자신의 잔에게 말을 걸게 만드세요.",
+    "hint": "잔을 바라보고 한 문장 말해야 성공",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  },
+  {
+    "text": "{target}이 음식에게 사과하게 만드세요.",
+    "hint": "음식을 바라보고 미안하다고 해야 성공",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  },
+  {
+    "text": "{target}이 의자에게 고맙다고 말하게 만드세요.",
+    "hint": "의자를 보고 말해야 인정",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  },
+  {
+    "text": "{target}이 아무 물건 하나를 마이크처럼 사용하게 만드세요.",
+    "hint": "말하거나 노래해야 성공",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  },
+  {
+    "text": "{target}이 자신을 동물에 비유하게 만드세요.",
+    "hint": "동물 이름과 이유까지 말해야 성공",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  },
+  {
+    "text": "{target}이 5초 동안 대통령 연설처럼 말하게 만드세요.",
+    "hint": "손동작까지 하면 완벽 성공",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  },
+  {
+    "text": "{target}이 갑자기 누군가를 인터뷰하게 만드세요.",
+    "hint": "질문을 두 개 이상 해야 성공",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  },
+  {
+    "text": "{target}이 영화 명대사를 갑자기 외치게 만드세요.",
+    "hint": "실제 명대사든 즉흥이든 인정",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  },
+  {
+    "text": "{target}이 허공에 키스를 날리게 만드세요.",
+    "hint": "사진이나 장난 상황에서 유도",
+    "level": "crazy",
+    "levelName": "광기",
+    "stars": 5,
+    "emoji": "🤪"
+  }
+];
 
   const state = {
     db: null,
@@ -37,7 +868,9 @@
     room: null,
     player: null,
     timerId: null,
-    confirmResolve: null
+    confirmResolve: null,
+    lastSeenReportCount: 0,
+    currentRoundForReports: 0
   };
 
   const $ = (selector) => document.querySelector(selector);
@@ -131,6 +964,7 @@
       score: 0,
       completed: false,
       reportedBy: {},
+      reportStats: { sent: 0, received: 0 },
       mission: null
     });
 
@@ -186,6 +1020,7 @@
       score: 0,
       completed: false,
       reportedBy: {},
+      reportStats: { sent: 0, received: 0 },
       mission: null
     });
 
@@ -315,7 +1150,11 @@
         text: mission.text.replace("{target}", target.nickname),
         hint: mission.hint,
         targetId,
-        targetName: target.nickname
+        targetName: target.nickname,
+        level: mission.level || "normal",
+        levelName: mission.levelName || MISSION_LEVELS.normal.name,
+        stars: mission.stars || MISSION_LEVELS.normal.stars,
+        emoji: mission.emoji || MISSION_LEVELS.normal.emoji
       };
       updates[`players/${playerId}/completed`] = false;
       updates[`players/${playerId}/reportedBy`] = null;
@@ -327,6 +1166,8 @@
     updates.startedAt = startedAt;
     updates.result = null;
 
+    state.lastSeenReportCount = 0;
+    state.currentRoundForReports = nextRound;
     await roomRef().update(updates);
   }
 
@@ -340,6 +1181,34 @@
     $("#completeMissionButton").disabled = Boolean(player.completed);
     $("#completeMissionButton").textContent = player.completed ? "성공 접수 완료 ✓" : "미션 성공!";
     $("#hostRoundControls").classList.toggle("hidden", !state.isHost);
+
+    const reportCount = player.reportedBy ? Object.keys(player.reportedBy).length : 0;
+    if (state.currentRoundForReports !== Number(state.room.round || 0)) {
+      state.currentRoundForReports = Number(state.room.round || 0);
+      state.lastSeenReportCount = reportCount;
+    } else if (reportCount > state.lastSeenReportCount) {
+      showAnonymousReportAlert(reportCount - state.lastSeenReportCount);
+      state.lastSeenReportCount = reportCount;
+    } else {
+      state.lastSeenReportCount = reportCount;
+    }
+  }
+
+  function showAnonymousReportAlert(count) {
+    const message = count > 1
+      ? `익명의 ${count}명이 당신을 신고했습니다`
+      : "익명의 누군가가 당신을 신고했습니다";
+
+    $("#anonymousReportTitle").textContent = message;
+    $("#anonymousReportModal").classList.remove("hidden");
+
+    if (navigator.vibrate) {
+      navigator.vibrate([180, 80, 180]);
+    }
+  }
+
+  function closeAnonymousReportAlert() {
+    $("#anonymousReportModal").classList.add("hidden");
   }
 
   function startTimer() {
@@ -410,12 +1279,30 @@
 
     if (!confirmed) return;
 
-    await roomRef(`players/${targetPlayerId}/reportedBy/${state.playerId}`).set({
+    const existingReport = await roomRef(
+      `players/${targetPlayerId}/reportedBy/${state.playerId}`
+    ).once("value");
+
+    if (existingReport.exists()) {
+      showToast("이미 이 사람을 신고했습니다.");
+      showScreen("missionScreen");
+      return;
+    }
+
+    const reporterSent = Number(state.room.players?.[state.playerId]?.reportStats?.sent || 0);
+    const targetReceived = Number(target.reportStats?.received || 0);
+    const reportUpdates = {};
+
+    reportUpdates[`players/${targetPlayerId}/reportedBy/${state.playerId}`] = {
       nickname: state.nickname,
       createdAt: firebase.database.ServerValue.TIMESTAMP
-    });
+    };
+    reportUpdates[`players/${state.playerId}/reportStats/sent`] = reporterSent + 1;
+    reportUpdates[`players/${targetPlayerId}/reportStats/received`] = targetReceived + 1;
 
-    showToast(`${target.nickname}님을 신고했습니다.`);
+    await roomRef().update(reportUpdates);
+
+    showToast(`${target.nickname}님을 익명 신고했습니다.`);
     showScreen("missionScreen");
   }
 
@@ -426,10 +1313,23 @@
     const entries = Object.entries(players);
     const penalties = [];
     const details = [];
+    const missionResults = [];
+    const reportRelations = [];
 
     entries.forEach(([playerId, player]) => {
       const reports = player.reportedBy ? Object.keys(player.reportedBy) : [];
       const reportCount = reports.length;
+
+      reports.forEach((reporterId) => {
+        if (players[reporterId]) {
+          reportRelations.push({
+            reporterId,
+            reporterName: players[reporterId].nickname,
+            targetId: playerId,
+            targetName: player.nickname
+          });
+        }
+      });
 
       if (player.completed && reportCount === 0) {
         const targetId = player.mission?.targetId;
@@ -448,6 +1348,17 @@
           }
         });
       }
+      missionResults.push({
+        playerId,
+        nickname: player.nickname,
+        missionText: player.mission?.text || "",
+        level: player.mission?.level || "normal",
+        levelName: player.mission?.levelName || MISSION_LEVELS.normal.name,
+        stars: Number(player.mission?.stars || MISSION_LEVELS.normal.stars),
+        emoji: player.mission?.emoji || MISSION_LEVELS.normal.emoji,
+        completed: Boolean(player.completed),
+        reportCount
+      });
     });
 
     if (penalties.length === 0) {
@@ -478,6 +1389,8 @@
       round: state.room.round,
       penaltyNames,
       details,
+      missionResults,
+      reportRelations,
       createdAt: Date.now()
     };
 
@@ -504,8 +1417,76 @@
       .map((detail) => `<div class="summary-item">${escapeHtml(detail)}</div>`)
       .join("");
 
+    renderDifficultyReveal(result.missionResults || []);
+    renderReportStatistics(result.reportRelations || []);
+
     $("#hostResultControls").classList.toggle("hidden", !state.isHost);
     $("#guestResultWaiting").classList.toggle("hidden", state.isHost);
+  }
+
+  function renderDifficultyReveal(missionResults) {
+    $("#difficultyResultList").innerHTML = missionResults.map((mission) => {
+      const count = Math.min(5, Number(mission.stars || 0));
+      const stars = "★".repeat(count) + "☆".repeat(5 - count);
+
+      let statusText = "미션 실패";
+      let statusClass = "mission-failed";
+
+      if (mission.completed && mission.reportCount === 0) {
+        statusText = "완전범죄 성공";
+        statusClass = "mission-perfect";
+      } else if (mission.completed && mission.reportCount > 0) {
+        statusText = "성공했지만 발각";
+        statusClass = "mission-caught";
+      } else if (!mission.completed && mission.reportCount > 0) {
+        statusText = "신고받았지만 실패";
+        statusClass = "mission-innocent";
+      }
+
+      return `
+        <article class="difficulty-result-card ${escapeHtml(mission.level)}">
+          <div class="difficulty-result-header">
+            <strong>${escapeHtml(mission.nickname)}</strong>
+            <span class="${statusClass}">${statusText}</span>
+          </div>
+          <p class="revealed-mission">${escapeHtml(mission.missionText)}</p>
+          <div class="difficulty-bottom">
+            <span class="difficulty-name">${escapeHtml(mission.emoji)} ${escapeHtml(mission.levelName)}</span>
+            <span class="difficulty-stars">${stars}</span>
+          </div>
+        </article>
+      `;
+    }).join("");
+  }
+
+  function renderReportStatistics(reportRelations) {
+    const players = state.room.players || {};
+
+    $("#reportRelationsList").innerHTML = reportRelations.length
+      ? reportRelations.map((item) => `
+          <div class="report-relation-item">
+            <strong>${escapeHtml(item.reporterName)}</strong>
+            <span>→ 신고 →</span>
+            <strong>${escapeHtml(item.targetName)}</strong>
+          </div>
+        `).join("")
+      : `<div class="empty-report">이번 라운드에는 신고가 없었습니다.</div>`;
+
+    const stats = Object.entries(players).map(([playerId, player]) => ({
+      playerId,
+      nickname: player.nickname,
+      sent: reportRelations.filter((item) => item.reporterId === playerId).length,
+      received: reportRelations.filter((item) => item.targetId === playerId).length
+    }));
+
+    $("#reportStatsList").innerHTML = stats
+      .sort((a, b) => (b.received + b.sent) - (a.received + a.sent))
+      .map((item) => `
+        <div class="report-stat-item ${item.playerId === state.playerId ? "my-stat" : ""}">
+          <strong>${escapeHtml(item.nickname)}${item.playerId === state.playerId ? " (나)" : ""}</strong>
+          <span>신고 ${item.sent}회 · 피신고 ${item.received}회</span>
+        </div>
+      `).join("");
   }
 
   async function nextRound() {
@@ -555,6 +1536,8 @@
     state.isHost = false;
     state.room = null;
     state.player = null;
+    state.lastSeenReportCount = 0;
+    state.currentRoundForReports = 0;
   }
 
   function restartSession() {
@@ -586,6 +1569,7 @@
   $("#restartSessionButton").addEventListener("click", restartSession);
   $("#confirmCancelButton").addEventListener("click", () => resolveConfirm(false));
   $("#confirmOkButton").addEventListener("click", () => resolveConfirm(true));
+  $("#anonymousReportCloseButton").addEventListener("click", closeAnonymousReportAlert);
 
   $("#copyRoomCodeButton").addEventListener("click", async () => {
     try {
