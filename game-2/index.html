@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#101018" />
+  <title>완전범죄 - 집들이 비밀 미션 게임</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <section id="homeScreen" class="screen active">
+      <div class="hero-card">
+        <p class="eyebrow">HOUSE PARTY SECRET MISSION</p>
+        <h1>완전범죄</h1>
+        <p class="hero-copy">
+          모두에게 비밀 미션이 주어진다.<br />
+          자연스럽게 성공하면 상대가 마시고,<br />
+          들키면 네가 마신다. 🍻
+        </p>
+
+        <div class="home-actions">
+          <button id="createRoomButton" class="button primary">방 만들기</button>
+
+          <div class="divider"><span>또는</span></div>
+
+          <label class="field">
+            <span>방 코드</span>
+            <input id="roomCodeInput" maxlength="6" autocomplete="off" placeholder="예: A7K9Q2" />
+          </label>
+
+          <label class="field">
+            <span>닉네임</span>
+            <input id="nicknameInput" maxlength="10" autocomplete="off" placeholder="예: 건우" />
+          </label>
+
+          <button id="joinRoomButton" class="button secondary">방 참가하기</button>
+        </div>
+
+        <div class="notice-card">
+          <strong>게임 준비</strong>
+          <p>최소 3명, 권장 6~10명 · 휴대폰마다 같은 주소로 접속</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="lobbyScreen" class="screen">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">ROOM CODE</p>
+          <button id="copyRoomCodeButton" class="room-code" type="button">
+            <span id="roomCodeText">------</span>
+            <small>눌러서 복사</small>
+          </button>
+        </div>
+        <span id="connectionBadge" class="badge">연결 중</span>
+      </header>
+
+      <div class="panel">
+        <div class="panel-title-row">
+          <h2>참가자</h2>
+          <span id="playerCountText">0명</span>
+        </div>
+        <ul id="playerList" class="player-list"></ul>
+      </div>
+
+      <div class="panel compact">
+        <h3>게임 방법</h3>
+        <ol class="rule-list">
+          <li>각자 휴대폰에서 비밀 미션을 확인한다.</li>
+          <li>대화 중 자연스럽게 미션을 수행한다.</li>
+          <li>수상한 사람은 신고하고, 성공하면 직접 완료한다.</li>
+          <li>결과에 따라 걸린 사람이 한 모금!</li>
+        </ol>
+      </div>
+
+      <div id="hostControls" class="bottom-actions hidden">
+        <label class="field">
+          <span>라운드 시간</span>
+          <select id="roundDurationSelect">
+            <option value="120">2분</option>
+            <option value="180" selected>3분</option>
+            <option value="240">4분</option>
+          </select>
+        </label>
+        <button id="startGameButton" class="button primary">게임 시작</button>
+      </div>
+
+      <div id="guestWaiting" class="waiting-card hidden">
+        방장이 게임을 시작할 때까지 기다리는 중…
+      </div>
+    </section>
+
+    <section id="missionScreen" class="screen">
+      <header class="topbar mission-topbar">
+        <div>
+          <p class="eyebrow">ROUND <span id="roundNumberText">1</span></p>
+          <h2 id="timerText">03:00</h2>
+        </div>
+        <span id="missionStatusBadge" class="badge danger">절대 들키지 마</span>
+      </header>
+
+      <article class="mission-card">
+        <p class="mission-label">당신의 비밀 미션</p>
+        <h1 id="missionText">미션을 불러오는 중…</h1>
+        <p id="missionHintText" class="mission-hint"></p>
+      </article>
+
+      <div class="warning-card">
+        다른 사람에게 화면을 보여주지 마세요 👀
+      </div>
+
+      <div class="game-actions">
+        <button id="completeMissionButton" class="button success">미션 성공!</button>
+        <button id="reportPlayerButton" class="button danger">수상한 사람 신고</button>
+      </div>
+
+      <div id="hostRoundControls" class="host-round-controls hidden">
+        <button id="finishRoundButton" class="button ghost">방장: 라운드 종료</button>
+      </div>
+    </section>
+
+    <section id="reportScreen" class="screen">
+      <header class="simple-header">
+        <button id="cancelReportButton" class="icon-button" type="button">←</button>
+        <div>
+          <p class="eyebrow">REPORT</p>
+          <h2>누가 수상해?</h2>
+        </div>
+      </header>
+
+      <p class="screen-description">
+        잘못 신고하면 신고자가 마실 수도 있어. 신중하게 골라! 😈
+      </p>
+
+      <div id="reportPlayerList" class="select-player-list"></div>
+    </section>
+
+    <section id="resultScreen" class="screen">
+      <div class="result-card">
+        <p class="eyebrow">ROUND RESULT</p>
+        <div id="resultEmoji" class="result-emoji">🍻</div>
+        <h1 id="resultTitle">결과 공개</h1>
+        <p id="resultDescription" class="result-description"></p>
+
+        <div id="roundSummary" class="round-summary"></div>
+
+        <div id="hostResultControls" class="bottom-actions hidden">
+          <button id="nextRoundButton" class="button primary">다음 라운드</button>
+          <button id="endGameButton" class="button ghost">게임 종료</button>
+        </div>
+
+        <div id="guestResultWaiting" class="waiting-card hidden">
+          방장이 다음 라운드를 준비하는 중…
+        </div>
+      </div>
+    </section>
+
+    <section id="finalScreen" class="screen">
+      <div class="hero-card">
+        <p class="eyebrow">CASE CLOSED</p>
+        <h1>오늘의 완전범죄 종료</h1>
+        <p class="hero-copy">가장 많이 걸린 사람은 누구였을까? 🍺</p>
+
+        <ol id="rankingList" class="ranking-list"></ol>
+
+        <button id="restartSessionButton" class="button primary">처음으로</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status"></div>
+
+  <div id="confirmModal" class="modal hidden">
+    <div class="modal-card">
+      <h3 id="confirmTitle">확인</h3>
+      <p id="confirmMessage"></p>
+      <div class="modal-actions">
+        <button id="confirmCancelButton" class="button ghost">취소</button>
+        <button id="confirmOkButton" class="button danger">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-database-compat.js"></script>
+  <script src="./firebase-config.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
