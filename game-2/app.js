@@ -5996,9 +5996,10 @@
       `).join("")}
     `;
 
-    $("#guessedMissionInput").value = "";
-    const reasonInput = $("#accusationReasonInput");
-    if (reasonInput) reasonInput.value = "";
+    const guessedMissionInput = $("#guessedMissionInput");
+    if (guessedMissionInput) {
+      guessedMissionInput.value = "";
+    }
     showScreen("reportScreen");
   }
 
