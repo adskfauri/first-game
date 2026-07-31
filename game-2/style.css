@@ -1159,6 +1159,22 @@ select:focus {
   backdrop-filter: blur(12px);
 }
 
+.mission-secret-area {
+  transition: filter 0.15s ease, opacity 0.15s ease;
+}
+
+.mission-secret-area.blurred {
+  filter: blur(12px);
+  opacity: 0.55;
+  user-select: none;
+  pointer-events: none;
+}
+
+.mission-reveal-button {
+  margin-top: 18px;
+  touch-action: none;
+}
+
 #reportPlayerButton {
   font-weight: 950;
   letter-spacing: -.02em;

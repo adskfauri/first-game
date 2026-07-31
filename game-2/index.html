@@ -102,11 +102,22 @@
         <span id="missionStatusBadge" class="badge danger">절대 들키지 마</span>
       </header>
 
-      <article class="mission-card">
-        <p class="mission-label">당신의 비밀 미션</p>
+    <article class="mission-card">
+      <p class="mission-label">당신의 비밀 미션</p>
+
+      <div id="missionSecretArea" class="mission-secret-area blurred">
         <h1 id="missionText">미션을 불러오는 중…</h1>
         <p id="missionHintText" class="mission-hint"></p>
-      </article>
+      </div>
+
+      <button
+        id="holdMissionRevealButton"
+        class="button secondary mission-reveal-button"
+        type="button"
+      >
+        👁️ 누르고 있는 동안 지령 보기
+      </button>
+    </article>
 
       <div class="warning-card">
         화면은 비밀로 유지하세요. 지령을 알아챘다면 사람뿐 아니라

@@ -5472,6 +5472,32 @@
   const $ = (selector) => document.querySelector(selector);
   const screens = [...document.querySelectorAll(".screen")];
 
+  const missionSecretArea = $("#missionSecretArea");
+  const holdMissionRevealButton = $("#holdMissionRevealButton");
+
+  function showMissionSecret() {
+    missionSecretArea?.classList.remove("blurred");
+  }
+
+  function hideMissionSecret() {
+    missionSecretArea?.classList.add("blurred");
+  }
+
+  holdMissionRevealButton?.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    showMissionSecret();
+  });
+
+  holdMissionRevealButton?.addEventListener("pointerup", hideMissionSecret);
+  holdMissionRevealButton?.addEventListener("pointercancel", hideMissionSecret);
+  holdMissionRevealButton?.addEventListener("pointerleave", hideMissionSecret);
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      hideMissionSecret();
+    }
+  });
+
   function showScreen(id) {
     screens.forEach((screen) => screen.classList.toggle("active", screen.id === id));
     window.scrollTo({ top: 0, behavior: "smooth" });
