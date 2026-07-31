@@ -5794,7 +5794,7 @@
       return;
     }
 
-    const duration = Number($("#roundDurationSelect").value || state.room.duration || 180);
+    const duration = Number($("#roundDurationSelect").value || state.room.duration || 420);
     const missionPool = shuffled(MISSIONS);
     const updates = {};
     const nextRound = Number(state.room.round || 0) + 1;
@@ -5998,7 +5998,7 @@
 
     handleSurpriseEvent(state.room.surpriseEvent || null);
 
-    const endAt = Number(state.room.startedAt || 0) + Number(state.room.duration || 180) * 1000;
+    const endAt = Number(state.room.startedAt || 0) + Number(state.room.duration || 420) * 1000;
     const remaining = Math.max(0, Math.ceil((endAt - Date.now()) / 1000));
     const minutes = String(Math.floor(remaining / 60)).padStart(2, "0");
     const seconds = String(remaining % 60).padStart(2, "0");
@@ -6027,70 +6027,80 @@
       return;
     }
 
+    if (state.player?.objectionUsed) {
+      showToast("이번 라운드 이의제기권은 이미 사용했습니다.");
+      return;
+    }
+
     const players = Object.entries(state.room.players || {})
       .filter(([id]) => id !== state.playerId);
 
     $("#accusedPlayerSelect").innerHTML = `
-      <option value="">용의자를 선택하세요</option>
+      <option value="">수상한 사람을 선택하세요</option>
       ${players.map(([id, player]) => `
         <option value="${id}">${escapeHtml(player.nickname)}</option>
       `).join("")}
     `;
+
+    $("#guessedMissionInput").value = "";
     $("#accusationReasonInput").value = "";
     showScreen("reportScreen");
   }
 
   async function submitObjection() {
     const suspectId = $("#accusedPlayerSelect").value;
-    const claim = $("#accusationReasonInput").value.trim();
+    const guessedMission = $("#guessedMissionInput").value.trim();
+    const evidence = $("#accusationReasonInput").value.trim();
     const suspect = state.room.players?.[suspectId];
 
     if (!suspect) {
-      showToast("용의자를 선택해 주세요.");
+      showToast("수상한 사람을 선택해 주세요.");
       return;
     }
-    if (claim.length < 5) {
-      showToast("의심 근거를 5자 이상 작성해 주세요.");
+    if (guessedMission.length < 8) {
+      showToast("추측한 지령을 8자 이상 구체적으로 작성해 주세요.");
       return;
     }
-
-    const used = Boolean(state.player?.objectionUsed);
-    if (used) {
+    if (evidence.length < 5) {
+      showToast("수상한 근거를 5자 이상 작성해 주세요.");
+      return;
+    }
+    if (state.player?.objectionUsed) {
       showToast("이번 라운드 이의제기권은 이미 사용했습니다.");
       return;
     }
 
     const elapsed = Math.floor((Date.now() - Number(state.room.startedAt || 0)) / 1000);
-    if (elapsed < 20) {
-      showToast("라운드 시작 20초 후부터 이의제기할 수 있습니다.");
+    if (elapsed < 30) {
+      showToast("라운드 시작 30초 후부터 이의제기할 수 있습니다.");
       return;
     }
 
     const confirmed = await confirmAction(
-      "⚖️ 이의 있습니다!",
-      `${suspect.nickname}님을 지목하면 모든 플레이가 멈춥니다. 틀리면 익명 해제 후 민망 벌칙을 수행합니다.`
+      "⚖️ 전원을 멈출까요?",
+      `${suspect.nickname}님의 지령을 추리해 공개합니다. 틀리면 민망 벌칙을 받습니다.`
     );
     if (!confirmed) return;
 
     const remainingSeconds = Math.max(
       0,
-      Number(state.room.duration || 180) - elapsed
+      Number(state.room.duration || 420) - elapsed
     );
-    const courtId = `${state.room.round}-${Date.now()}`;
 
     await roomRef().update({
       status: "court",
       court: {
-        id: courtId,
-        phase: "chat",
+        id: `${state.room.round}-${Date.now()}`,
+        phase: "discussion",
         accuserId: state.playerId,
         suspectId,
-        claim,
-        openedAt: firebase.database.ServerValue.TIMESTAMP,
+        guessedMission,
+        evidence,
         remainingSeconds,
+        openedAt: firebase.database.ServerValue.TIMESTAMP,
         messages: {},
-        votes: {},
-        result: null
+        result: null,
+        penaltyCompleted: false
       },
       [`players/${state.playerId}/objectionUsed`]: true
     });
@@ -6098,10 +6108,11 @@
 
   function getAnonymousAlias(playerId, court) {
     if (playerId === court.accuserId) return "익명 제보자";
+    if (playerId === court.suspectId) return "익명 용의자";
     const ids = Object.keys(state.room.players || {})
-      .filter((id) => id !== court.accuserId)
+      .filter((id) => id !== court.accuserId && id !== court.suspectId)
       .sort();
-    return `익명 배심원 ${ids.indexOf(playerId) + 1}`;
+    return `익명 참가자 ${ids.indexOf(playerId) + 1}`;
   }
 
   function renderCourt() {
@@ -6113,20 +6124,39 @@
     const isAccuser = state.playerId === court.accuserId;
     const isSuspect = state.playerId === court.suspectId;
 
-    $("#courtPhaseBadge").textContent =
-      court.phase === "chat" ? "익명 제보 시간" :
-      court.phase === "vote" ? "배심원 투표" : "판결 공개";
-
     $("#courtSuspectName").textContent = suspect?.nickname || "알 수 없음";
-    $("#courtClaimText").textContent = court.claim || "";
+    $("#courtGuessText").textContent = court.guessedMission || "";
+    $("#courtClaimText").textContent = court.evidence || "";
+
+    $("#courtChatArea").classList.toggle("hidden", court.phase !== "discussion");
+    $("#courtVoteArea").classList.toggle("hidden", court.phase !== "judgment");
+    $("#courtRevealArea").classList.toggle("hidden", court.phase !== "reveal");
+
+    if (court.phase === "discussion") {
+      $("#courtStepChip").textContent = "2 / 4 · 공개 제보";
+      $("#courtMainTitle").textContent = "익명 제보 공개";
+      $("#courtGuideText").textContent =
+        "제보자의 추측과 근거를 읽고 익명으로 의견을 나누세요.";
+    } else if (court.phase === "judgment") {
+      $("#courtStepChip").textContent = "3 / 4 · 본인 판정";
+      $("#courtMainTitle").textContent = "지령 대조";
+      $("#courtGuideText").textContent =
+        "지목당한 사람이 실제 지령과 제보 내용을 직접 비교합니다.";
+    } else {
+      $("#courtStepChip").textContent = "4 / 4 · 결과";
+      $("#courtMainTitle").textContent = "재판 결과";
+      $("#courtGuideText").textContent =
+        "결과와 벌칙을 확인한 뒤 게임을 재개합니다.";
+    }
+
     $("#courtAccuserNotice").textContent = isAccuser
-      ? "당신은 최초 제보자입니다. 신분은 아직 익명입니다."
+      ? "당신이 최초 제보자입니다. 결과가 나오기 전까지 신분은 익명입니다."
       : isSuspect
-        ? "당신이 용의자로 지목되었습니다. 익명 채팅으로 해명할 수 있습니다."
-        : "익명 배심원으로 의견을 남길 수 있습니다.";
+        ? "당신이 지목되었습니다. 실제 지령과 비교해 솔직하게 판정해 주세요."
+        : "모든 의견은 재판 중 익명으로 표시됩니다.";
 
     const messages = Object.values(court.messages || {})
-      .sort((a,b) => Number(a.createdAt||0)-Number(b.createdAt||0));
+      .sort((a, b) => Number(a.createdAt || 0) - Number(b.createdAt || 0));
 
     $("#courtChatList").innerHTML = messages.length
       ? messages.map((message) => `
@@ -6135,25 +6165,23 @@
             <p>${escapeHtml(message.text)}</p>
           </div>
         `).join("")
-      : `<div class="court-chat-empty">아직 의견이 없습니다. 증거와 해명을 우다다다 적어보세요!</div>`;
+      : `<div class="court-chat-empty">제보 내용에 대한 의견이나 해명을 익명으로 적어보세요.</div>`;
 
-    $("#courtChatArea").classList.toggle("hidden", court.phase !== "chat");
-    $("#courtVoteArea").classList.toggle("hidden", court.phase !== "vote");
-    $("#courtRevealArea").classList.toggle("hidden", court.phase !== "reveal");
+    $("#openVoteButton").classList.toggle(
+      "hidden",
+      !state.isHost || court.phase !== "discussion"
+    );
 
-    $("#openVoteButton").classList.toggle("hidden", !state.isHost || court.phase !== "chat");
-    $("#revealCourtButton").classList.toggle("hidden", !state.isHost || court.phase !== "vote");
+    if (court.phase === "judgment") {
+      $("#suspectJudgeCard").classList.toggle("hidden", !isSuspect);
+      $("#judgeWaitingCard").classList.toggle("hidden", isSuspect);
 
-    const myVote = court.votes?.[state.playerId]?.choice;
-    document.querySelectorAll("[data-court-vote]").forEach((button) => {
-      button.disabled = Boolean(myVote) || isSuspect;
-      button.classList.toggle("selected", button.dataset.courtVote === myVote);
-    });
-    $("#courtVoteNotice").textContent = isSuspect
-      ? "용의자는 투표할 수 없습니다."
-      : myVote
-        ? `투표 완료: ${myVote === "guilty" ? "범인이다" : "무죄다"}`
-        : "한 번 투표하면 변경할 수 없습니다.";
+      if (isSuspect) {
+        $("#suspectActualMission").textContent =
+          state.player?.mission?.text || "지령을 확인할 수 없습니다.";
+        $("#suspectGuessMission").textContent = court.guessedMission || "";
+      }
+    }
 
     if (court.phase === "reveal") {
       renderCourtReveal(court);
@@ -6164,145 +6192,167 @@
     const court = state.room.court;
     const input = $("#courtChatInput");
     const text = input.value.trim();
-    if (!court || court.phase !== "chat" || !text) return;
 
-    const messageId = randomId();
-    await roomRef(`court/messages/${messageId}`).set({
+    if (!court || court.phase !== "discussion" || !text) return;
+
+    await roomRef(`court/messages/${randomId()}`).set({
       playerId: state.playerId,
       alias: getAnonymousAlias(state.playerId, court),
       text: text.slice(0, 200),
       createdAt: firebase.database.ServerValue.TIMESTAMP
     });
+
     input.value = "";
   }
 
   async function openCourtVote() {
-    if (!state.isHost || state.room.court?.phase !== "chat") return;
-    await roomRef("court/phase").set("vote");
+    if (!state.isHost || state.room.court?.phase !== "discussion") return;
+    await roomRef("court/phase").set("judgment");
   }
 
-  async function castCourtVote(choice) {
+  async function submitSuspectJudgment(isCorrect) {
     const court = state.room.court;
-    if (!court || court.phase !== "vote") return;
-    if (state.playerId === court.suspectId) {
-      showToast("용의자는 투표할 수 없습니다.");
-      return;
-    }
-    if (court.votes?.[state.playerId]) {
-      showToast("이미 투표했습니다.");
+    if (!court || court.phase !== "judgment") return;
+    if (state.playerId !== court.suspectId) {
+      showToast("지목당한 사람만 판정할 수 있습니다.");
       return;
     }
 
-    await roomRef(`court/votes/${state.playerId}`).set({
-      choice,
-      createdAt: firebase.database.ServerValue.TIMESTAMP
-    });
-  }
-
-  async function revealCourtResult() {
-    if (!state.isHost) return;
-    const court = state.room.court;
-    if (!court || court.phase !== "vote") return;
-
-    const players = state.room.players || {};
-    const suspect = players[court.suspectId];
-    const accuser = players[court.accuserId];
-    const correct = suspect?.mission?.targetId === court.accuserId;
-    const selectedPenalty = correct
+    const penalty = isCorrect
       ? null
       : EMBARRASSING_PENALTIES[
           Math.floor(Math.random() * EMBARRASSING_PENALTIES.length)
         ];
 
-    const votes = Object.entries(court.votes || {}).map(([playerId, vote]) => ({
-      playerId,
-      nickname: players[playerId]?.nickname || "알 수 없음",
-      choice: vote.choice
-    }));
-
-    const updates = {
+    await roomRef().update({
       "court/phase": "reveal",
       "court/result": {
-        correct,
+        correct: Boolean(isCorrect),
         accuserId: court.accuserId,
-        accuserName: accuser?.nickname || "알 수 없음",
+        accuserName: state.room.players?.[court.accuserId]?.nickname || "알 수 없음",
         suspectId: court.suspectId,
-        suspectName: suspect?.nickname || "알 수 없음",
-        missionText: correct ? (suspect?.mission?.text || "") : "",
-        penalty: selectedPenalty,
-        votes,
-        revealedAt: firebase.database.ServerValue.TIMESTAMP
-      }
-    };
-
-    if (correct) {
-      updates[`players/${court.suspectId}/courtCaught`] = true;
-      updates[`players/${court.suspectId}/reportedBy/${court.accuserId}`] = {
-        nickname: accuser?.nickname || "",
-        reason: court.claim,
-        createdAt: firebase.database.ServerValue.TIMESTAMP
-      };
-    } else {
-      updates[`players/${court.accuserId}/embarrassmentPenalty`] = selectedPenalty;
-      updates[`players/${court.accuserId}/falseObjections`] =
-        Number(players[court.accuserId]?.falseObjections || 0) + 1;
-    }
-
-    await roomRef().update(updates);
+        suspectName: state.nickname,
+        guessedMission: court.guessedMission,
+        evidence: court.evidence,
+        actualMission: isCorrect ? (state.player?.mission?.text || "") : "",
+        penalty,
+        judgedBy: state.playerId,
+        judgedAt: firebase.database.ServerValue.TIMESTAMP
+      },
+      [`players/${court.accuserId}/embarrassmentPenalty`]:
+        isCorrect ? null : penalty,
+      [`players/${court.suspectId}/courtCaught`]:
+        Boolean(isCorrect)
+    });
   }
 
   function renderCourtReveal(court) {
     const result = court.result || {};
     const correct = Boolean(result.correct);
+    const isAccuser = state.playerId === court.accuserId;
 
-    $("#courtRevealEmoji").textContent = correct ? "🚨" : "🤡";
-    $("#courtRevealTitle").textContent = correct ? "현장 적발 성공!" : "허위 제보였습니다!";
+    $("#courtRevealEmoji").textContent = correct ? "🎯" : "🤡";
+    $("#courtRevealTitle").textContent =
+      correct ? "지령 적발 성공!" : "추리가 빗나갔습니다!";
     $("#courtRevealSummary").textContent = correct
-      ? `${result.accuserName}님의 제보가 정확했습니다. ${result.suspectName}님의 정체가 공개됩니다.`
-      : `${result.accuserName}님의 추리가 빗나갔습니다. 최초 제보자만 공개됩니다.`;
+      ? `${result.accuserName}님이 ${result.suspectName}님의 핵심 지령을 알아냈습니다.`
+      : `${result.accuserName}님의 신원이 공개되었습니다. 실제 지령은 비공개로 유지됩니다.`;
 
     $("#courtMissionReveal").classList.toggle("hidden", !correct);
     if (correct) {
       $("#courtMissionReveal").innerHTML = `
-        <strong>${escapeHtml(result.suspectName)}의 실제 미션</strong>
-        <p>${escapeHtml(result.missionText)}</p>
+        <span>제보자의 추측</span>
+        <p>${escapeHtml(result.guessedMission)}</p>
+        <span>실제 지령</span>
+        <strong>${escapeHtml(result.actualMission)}</strong>
+        <span>최초 제보자</span>
+        <strong>${escapeHtml(result.accuserName)}</strong>
       `;
     }
 
     $("#courtPenaltyReveal").classList.toggle("hidden", correct);
+    $("#penaltyActionArea").classList.toggle("hidden", correct);
+
     if (!correct) {
       $("#courtPenaltyReveal").innerHTML = `
-        <strong>🎭 ${escapeHtml(result.accuserName)}의 민망 벌칙</strong>
-        <p>${escapeHtml(result.penalty)}</p>
+        <span>허위 제보자</span>
+        <strong>${escapeHtml(result.accuserName)}</strong>
+        <span>추측한 지령</span>
+        <p>${escapeHtml(result.guessedMission)}</p>
+        <span>민망 벌칙</span>
+        <strong>${escapeHtml(result.penalty)}</strong>
       `;
+
+      $("#penaltyDoneButton").classList.toggle(
+        "hidden",
+        !isAccuser || Boolean(court.penaltyCompleted)
+      );
+      $("#penaltyWaitingText").classList.toggle(
+        "hidden",
+        isAccuser || Boolean(court.penaltyCompleted)
+      );
     }
 
-    const votes = result.votes || [];
-    $("#courtVoteResultList").innerHTML = correct
-      ? votes.map((vote) => `
-          <div class="court-vote-result ${vote.choice === "guilty" ? "vote-correct" : "vote-wrong"}">
-            <strong>${escapeHtml(vote.nickname)}</strong>
-            <span>${vote.choice === "guilty" ? "범인이다" : "무죄다"}</span>
-          </div>
-        `).join("")
-      : `<div class="court-private-result">틀린 경우에는 최초 제보자만 공개됩니다.</div>`;
+    $("#hostCourtReview").classList.toggle("hidden", !state.isHost);
+    $("#resumeGameButton").classList.toggle(
+      "hidden",
+      !state.isHost || (!correct && !court.penaltyCompleted)
+    );
+  }
 
-    $("#resumeGameButton").classList.toggle("hidden", !state.isHost);
+  async function completeEmbarrassmentPenalty() {
+    const court = state.room.court;
+    if (!court || court.phase !== "reveal") return;
+    if (state.playerId !== court.accuserId) return;
+
+    await roomRef("court/penaltyCompleted").set(true);
+    showToast("벌칙 수행 완료! 이제 게임을 이어갑니다.");
+  }
+
+  async function overrideCourtResult() {
+    if (!state.isHost) return;
+
+    const court = state.room.court;
+    if (!court || court.phase !== "reveal") return;
+
+    const nextCorrect = !Boolean(court.result?.correct);
+    const penalty = nextCorrect
+      ? null
+      : EMBARRASSING_PENALTIES[
+          Math.floor(Math.random() * EMBARRASSING_PENALTIES.length)
+        ];
+
+    const suspect = state.room.players?.[court.suspectId];
+
+    await roomRef().update({
+      "court/result/correct": nextCorrect,
+      "court/result/actualMission":
+        nextCorrect ? (suspect?.mission?.text || "") : "",
+      "court/result/penalty": penalty,
+      "court/penaltyCompleted": nextCorrect,
+      [`players/${court.accuserId}/embarrassmentPenalty`]: penalty,
+      [`players/${court.suspectId}/courtCaught`]: nextCorrect
+    });
   }
 
   async function resumeAfterCourt() {
     if (!state.isHost) return;
+
     const court = state.room.court;
     if (!court || court.phase !== "reveal") return;
+    if (!court.result?.correct && !court.penaltyCompleted) {
+      showToast("민망 벌칙 수행이 끝나야 게임을 재개할 수 있습니다.");
+      return;
+    }
 
-    const historyId = court.id;
-    const startedAt = Date.now() -
-      (Number(state.room.duration || 180) - Number(court.remainingSeconds || 0)) * 1000;
+    const remainingSeconds = Math.max(1, Number(court.remainingSeconds || 1));
+    const duration = Number(state.room.duration || 420);
+    const startedAt = Date.now() - (duration - remainingSeconds) * 1000;
 
     await roomRef().update({
       status: "playing",
       startedAt,
-      [`courtHistory/${historyId}`]: court,
+      [`courtHistory/${court.id}`]: court,
       court: null
     });
   }
@@ -6725,11 +6775,11 @@
     if (event.key === "Enter") sendCourtChat();
   });
   $("#openVoteButton").addEventListener("click", openCourtVote);
-  $("#revealCourtButton").addEventListener("click", revealCourtResult);
+  $("#suspectCorrectButton").addEventListener("click", () => submitSuspectJudgment(true));
+  $("#suspectWrongButton").addEventListener("click", () => submitSuspectJudgment(false));
+  $("#penaltyDoneButton").addEventListener("click", completeEmbarrassmentPenalty);
+  $("#overrideCourtButton").addEventListener("click", overrideCourtResult);
   $("#resumeGameButton").addEventListener("click", resumeAfterCourt);
-  document.querySelectorAll("[data-court-vote]").forEach((button) => {
-    button.addEventListener("click", () => castCourtVote(button.dataset.courtVote));
-  });
   $("#finishRoundButton").addEventListener("click", finishRound);
   $("#nextRoundButton").addEventListener("click", nextRound);
   $("#endGameButton").addEventListener("click", endGame);
