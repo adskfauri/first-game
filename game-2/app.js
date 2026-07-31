@@ -5185,47 +5185,18 @@
     "stars": 3,
     "emoji": "🔥"
   },
-  {
-    "text": "{target}이(가) 질문 하나로 사진을 단체방에 올리게 만드세요.",
-    "hint": "실제로 전송까지 확인하면 성공",
-    "level": "hard",
-    "levelName": "고난도",
-    "stars": 3,
-    "emoji": "🔥"
-  },
-  {
-    "text": "{target}이(가) 다른 사람과 대화시키며 사진을 단체방에 올리게 만드세요.",
-    "hint": "실제로 전송까지 확인하면 성공",
-    "level": "hard",
-    "levelName": "고난도",
-    "stars": 3,
-    "emoji": "🔥"
-  },
-  {
-    "text": "{target}이(가) 직접 정답을 말하지 않고 사진을 단체방에 올리게 만드세요.",
-    "hint": "실제로 전송까지 확인하면 성공",
-    "level": "hard",
-    "levelName": "고난도",
-    "stars": 3,
-    "emoji": "🔥"
-  },
-  {
-    "text": "{target}이(가) 자연스러운 칭찬으로 사진을 단체방에 올리게 만드세요.",
-    "hint": "실제로 전송까지 확인하면 성공",
-    "level": "hard",
-    "levelName": "고난도",
-    "stars": 3,
-    "emoji": "🔥"
-  },
-  {
-    "text": "{target}이(가) 추억 이야기를 연결해 사진을 단체방에 올리게 만드세요.",
-    "hint": "실제로 전송까지 확인하면 성공",
-    "level": "hard",
-    "levelName": "고난도",
-    "stars": 3,
-    "emoji": "🔥"
-  }
 ];
+
+  const IMPOSSIBLE_MISSION_KEYWORDS = [
+    "단체방", "채팅방", "메시지를 보내", "문자를 보내", "전화하게",
+    "통화하게", "SNS", "인스타", "카카오톡", "앱을 설치", "검색하게",
+    "링크를 열", "사진을 올리", "업로드", "게시물", "스토리에 올리"
+  ];
+
+  function isPlayableMission(mission) {
+    const text = `${mission?.text || ""} ${mission?.hint || ""}`;
+    return !IMPOSSIBLE_MISSION_KEYWORDS.some((keyword) => text.includes(keyword));
+  }
 
   const SURPRISE_EVENTS = [
     { type: "speed", emoji: "🚨", title: "긴급 버튼!", description: "가장 늦게 누른 사람은 한 모금!", buttonText: "지금 누르기!", duration: 8 },
@@ -5690,6 +5661,7 @@
       renderMission();
       showScreen("missionScreen");
       startTimer();
+      checkAllMissionsCompleted();
       return;
     }
 
@@ -5768,7 +5740,7 @@
     }
 
     const duration = Number($("#roundDurationSelect").value || state.room.duration || 420);
-    const missionPool = shuffled(MISSIONS);
+    const missionPool = shuffled(MISSIONS.filter(isPlayableMission));
     const updates = {};
     const nextRound = Number(state.room.round || 0) + 1;
     const startedAt = Date.now();
@@ -5789,6 +5761,7 @@
         emoji: mission.emoji || MISSION_LEVELS.normal.emoji
       };
       updates[`players/${playerId}/completed`] = false;
+      updates[`players/${playerId}/completedAt`] = null;
       updates[`players/${playerId}/reportedBy`] = null;
       updates[`players/${playerId}/objectionUsed`] = false;
       updates[`players/${playerId}/courtCaught`] = false;
@@ -5994,7 +5967,10 @@
     );
 
     if (!confirmed) return;
-    await playerRef().update({ completed: true });
+    await playerRef().update({
+      completed: true,
+      completedAt: firebase.database.ServerValue.TIMESTAMP
+    });
     showToast("미션 성공이 접수됐습니다!");
   }
 
@@ -6021,7 +5997,8 @@
     `;
 
     $("#guessedMissionInput").value = "";
-    $("#accusationReasonInput").value = "";
+    const reasonInput = $("#accusationReasonInput");
+    if (reasonInput) reasonInput.value = "";
     showScreen("reportScreen");
   }
 
@@ -6334,7 +6311,28 @@
   }
 
 
-  async function finishRound() {
+  let autoFinishingAllCompleted = false;
+
+  async function checkAllMissionsCompleted() {
+    if (!state.isHost || autoFinishingAllCompleted) return;
+    if (!state.room || state.room.status !== "playing") return;
+
+    const activePlayers = Object.entries(state.room.players || {})
+      .filter(([, player]) => !player.isSaboteur && player.mission);
+
+    if (activePlayers.length === 0) return;
+    if (!activePlayers.every(([, player]) => Boolean(player.completed))) return;
+
+    autoFinishingAllCompleted = true;
+    try {
+      await finishRound("all-completed");
+    } finally {
+      autoFinishingAllCompleted = false;
+    }
+  }
+
+
+  async function finishRound(finishReason = "manual") {
     if (!state.isHost || state.room.status !== "playing") return;
 
     const players = state.room.players || {};
@@ -6420,6 +6418,26 @@
         reportCount
       });
     });
+
+    if (finishReason === "all-completed") {
+      const completedActivePlayers = entries
+        .filter(([, player]) => !player.isSaboteur && player.completed)
+        .sort(([, a], [, b]) => Number(b.completedAt || 0) - Number(a.completedAt || 0));
+
+      const lastCompletedEntry = completedActivePlayers[0];
+      if (lastCompletedEntry) {
+        const [lastPlayerId, lastPlayer] = lastCompletedEntry;
+        penalties.push(lastPlayerId);
+        details.push(`🏁 전원 미션 완료 → 마지막 완료자 ${lastPlayer.nickname} 한 모금`);
+        penaltyReasons.push({
+          playerId: lastPlayerId,
+          nickname: lastPlayer.nickname,
+          reason: "모든 생존자 중 마지막으로 미션을 완료함",
+          count: 1,
+          type: "last-completer"
+        });
+      }
+    }
 
     const surpriseEvent = state.room.surpriseEvent || null;
     let surpriseResult = null;
@@ -6515,6 +6533,7 @@
       surpriseResult,
       embarrassmentResults,
       courtHistory: state.room.courtHistory || {},
+      finishReason,
       createdAt: Date.now()
     };
 
