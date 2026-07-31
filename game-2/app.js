@@ -5228,38 +5228,11 @@
 ];
 
   const SURPRISE_EVENTS = [
-    {
-      type: "speed",
-      emoji: "⚡",
-      title: "번개 생존전!",
-      description: "지금 바로 생존 버튼을 눌러! 가장 늦은 사람은 추가 한 모금.",
-      buttonText: "살려줘! ⚡",
-      duration: 8
-    },
-    {
-      type: "speed",
-      emoji: "🚨",
-      title: "긴급 검문!",
-      description: "경찰이 들이닥쳤다! 가장 늦게 신분 확인한 사람은 추가 한 모금.",
-      buttonText: "신분 확인!",
-      duration: 8
-    },
-    {
-      type: "speed",
-      emoji: "💣",
-      title: "폭탄 해체!",
-      description: "폭탄이 작동했다! 가장 늦게 해체한 사람은 폭탄주 대신 추가 한 모금.",
-      buttonText: "폭탄 해체!",
-      duration: 8
-    },
-    {
-      type: "speed",
-      emoji: "🧊",
-      title: "술자리 얼음땡!",
-      description: "얼음이 녹기 전에 버튼을 눌러! 가장 늦은 사람은 추가 한 모금.",
-      buttonText: "땡!",
-      duration: 8
-    }
+    { type: "speed", emoji: "🚨", title: "긴급 버튼!", description: "가장 늦게 누른 사람은 한 모금!", buttonText: "지금 누르기!", duration: 8 },
+    { type: "tap", emoji: "🔥", title: "다다다다 연타!", description: "5초 동안 가장 적게 누른 사람은 한 모금!", buttonText: "연타 시작!", duration: 5 },
+    { type: "target", emoji: "🎯", title: "77에 멈춰라!", description: "움직이는 숫자를 77에 가장 가깝게 멈추세요.", buttonText: "멈춰!", duration: 8 },
+    { type: "bomb", emoji: "💣", title: "폭탄 버튼!", description: "폭탄이 터지기 전에 버튼을 누르세요. 마지막 반응자가 한 모금!", buttonText: "폭탄 넘기기!", duration: 8 },
+    { type: "fake", emoji: "🕵️", title: "진짜 버튼 찾기!", description: "여섯 개 중 진짜 버튼을 찾아 누르세요.", buttonText: "진짜 찾기", duration: 8 }
   ];
 
   const EMBARRASSING_PENALTIES = [
@@ -5819,6 +5792,9 @@
       updates[`players/${playerId}/reportedBy`] = null;
       updates[`players/${playerId}/objectionUsed`] = false;
       updates[`players/${playerId}/courtCaught`] = false;
+      updates[`players/${playerId}/isSaboteur`] = false;
+      updates[`players/${playerId}/sabotageReadyAt`] = 0;
+      updates[`players/${playerId}/sabotageEffect`] = null;
       updates[`players/${playerId}/embarrassmentPenalty`] = null;
     });
 
@@ -5847,7 +5823,8 @@
       duration: selectedEvent.duration,
       triggerAt: startedAt + triggerAfterSeconds * 1000,
       endsAt: startedAt + (triggerAfterSeconds + selectedEvent.duration) * 1000,
-      responses: {}
+      responses: {},
+      correctIndex: Math.floor(Math.random() * 6)
     };
 
     state.lastSeenReportCount = 0;
@@ -5865,6 +5842,7 @@
     $("#completeMissionButton").disabled = Boolean(player.completed);
     $("#completeMissionButton").textContent = player.completed ? "성공 접수 완료 ✓" : "미션 성공!";
     $("#hostRoundControls").classList.toggle("hidden", !state.isHost);
+    if (window.PARTY_UPGRADE?.render) window.PARTY_UPGRADE.render(state);
 
     const reportCount = player.reportedBy ? Object.keys(player.reportedBy).length : 0;
     if (state.currentRoundForReports !== Number(state.room.round || 0)) {
@@ -6050,7 +6028,8 @@
   async function submitObjection() {
     const suspectId = $("#accusedPlayerSelect").value;
     const guessedMission = $("#guessedMissionInput").value.trim();
-    const evidence = $("#accusationReasonInput").value.trim();
+    const evidenceInput = $("#accusationReasonInput");
+    const evidence = evidenceInput ? evidenceInput.value.trim() : "재판 채팅에서 설명";
     const suspect = state.room.players?.[suspectId];
 
     if (!suspect) {
@@ -6059,10 +6038,6 @@
     }
     if (guessedMission.length < 8) {
       showToast("추측한 지령을 8자 이상 구체적으로 작성해 주세요.");
-      return;
-    }
-    if (evidence.length < 5) {
-      showToast("수상한 근거를 5자 이상 작성해 주세요.");
       return;
     }
     if (state.player?.objectionUsed) {
@@ -6126,7 +6101,7 @@
 
     $("#courtSuspectName").textContent = suspect?.nickname || "알 수 없음";
     $("#courtGuessText").textContent = court.guessedMission || "";
-    $("#courtClaimText").textContent = court.evidence || "";
+    if ($("#courtClaimText")) $("#courtClaimText").textContent = court.evidence || "";
 
     $("#courtChatArea").classList.toggle("hidden", court.phase !== "discussion");
     $("#courtVoteArea").classList.toggle("hidden", court.phase !== "judgment");
@@ -6136,7 +6111,7 @@
       $("#courtStepChip").textContent = "2 / 4 · 공개 제보";
       $("#courtMainTitle").textContent = "익명 제보 공개";
       $("#courtGuideText").textContent =
-        "제보자의 추측과 근거를 읽고 익명으로 의견을 나누세요.";
+        "제보자의 추측을 읽고, 근거와 해명은 익명 채팅으로 이야기하세요.";
     } else if (court.phase === "judgment") {
       $("#courtStepChip").textContent = "3 / 4 · 본인 판정";
       $("#courtMainTitle").textContent = "지령 대조";
@@ -6241,8 +6216,9 @@
       },
       [`players/${court.accuserId}/embarrassmentPenalty`]:
         isCorrect ? null : penalty,
-      [`players/${court.suspectId}/courtCaught`]:
-        Boolean(isCorrect)
+      [`players/${court.suspectId}/courtCaught`]: Boolean(isCorrect),
+      [`players/${court.suspectId}/isSaboteur`]: Boolean(isCorrect),
+      [`players/${court.suspectId}/sabotageReadyAt`]: isCorrect ? Date.now() + 30000 : 0
     });
   }
 
@@ -6762,6 +6738,8 @@
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
   }
+
+  window.PARTY_GAME_API = { state, roomRef, playerRef, showToast, escapeHtml };
 
   $("#createRoomButton").addEventListener("click", createRoom);
   $("#joinRoomButton").addEventListener("click", joinRoom);

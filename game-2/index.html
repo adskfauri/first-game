@@ -118,6 +118,19 @@
         <button id="reportPlayerButton" class="button danger">⚖️ 이의 있습니다!</button>
       </div>
 
+      <section id="saboteurPanel" class="saboteur-panel hidden">
+        <p class="eyebrow">SABOTEUR MODE</p>
+        <h3>👻 들켰다면, 이제 괴롭혀라!</h3>
+        <p>개인 지령은 끝났지만 재판·투표·돌발게임에는 계속 참여합니다. 30초마다 생존자 한 명을 헷갈리게 할 수 있습니다.</p>
+        <label class="field">
+          <span>방해할 생존자</span>
+          <select id="sabotageTargetSelect"></select>
+        </label>
+        <button id="useSabotageButton" class="button danger">👻 랜덤 방해 사용</button>
+        <small id="sabotageCooldownText" class="field-help"></small>
+      </section>
+      <div id="sabotageEffectBanner" class="sabotage-effect-banner hidden"></div>
+
       <div id="hostRoundControls" class="host-round-controls hidden">
         <button id="finishRoundButton" class="button ghost">방장: 라운드 종료</button>
       </div>
@@ -145,14 +158,7 @@
             placeholder="예: 건우에게 계속 물을 마시게 하는 지령"></textarea>
           <small class="field-help">대상과 행동을 함께 적어야 인정받기 쉽습니다.</small>
         </label>
-
-        <label class="field">
-          <span>③ 그렇게 생각한 근거</span>
-          <textarea id="accusationReasonInput" maxlength="200"
-            placeholder="예: 아까부터 건우에게 목마르지 않냐고 여러 번 물어봤다."></textarea>
-        </label>
-
-        <div class="warning-box">
+<div class="warning-box">
           추리가 틀리면 제보자의 신원이 공개되고 랜덤 민망 벌칙을 수행합니다 🤡
         </div>
 
@@ -180,9 +186,6 @@
         <article class="claim-card">
           <span>익명 제보자가 추측한 지령</span>
           <strong id="courtGuessText"></strong>
-          <hr />
-          <span>수상하다고 생각한 근거</span>
-          <p id="courtClaimText"></p>
         </article>
 
         <p id="courtAccuserNotice" class="court-notice"></p>
@@ -320,9 +323,11 @@
       <h2 id="surpriseTitle">돌발!</h2>
       <p id="surpriseDescription"></p>
       <div id="surpriseCountdown" class="surprise-countdown">8초</div>
+      <div id="surpriseGameBody"></div>
       <button id="surpriseActionButton" class="button surprise-button">
         생존!
       </button>
+      <div id="surpriseMiniStatus" class="surprise-mini-status"></div>
     </div>
   </div>
 
@@ -354,5 +359,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-database-compat.js"></script>
   <script src="./firebase-config.js"></script>
   <script src="./app.js"></script>
+  <script src="./party-upgrade.js"></script>
 </body>
 </html>
