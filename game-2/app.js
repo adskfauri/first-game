@@ -1743,6 +1743,4 @@ if (roomCodeInput) {
       .toUpperCase()
       .replace(/[^A-Z0-9]/g, "");
   });
-}
-
 })();
