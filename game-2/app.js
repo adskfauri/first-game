@@ -1735,7 +1735,7 @@
     }
   });
 
- const roomCodeInput = $("#roomCodeInput");
+const roomCodeInput = $("#roomCodeInput");
 
 if (roomCodeInput) {
   roomCodeInput.addEventListener("input", (event) => {
@@ -1744,3 +1744,5 @@ if (roomCodeInput) {
       .replace(/[^A-Z0-9]/g, "");
   });
 }
+
+})();
