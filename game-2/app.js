@@ -1736,7 +1736,12 @@
     }
   });
 
-  $("#roomCodeInput").addEventListener("input", (event) => {
-    event.target.value = event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+ const roomCodeInput = $("#roomCodeInput");
+
+if (roomCodeInput) {
+  roomCodeInput.addEventListener("input", (event) => {
+    event.target.value = event.target.value
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "");
   });
-})();
+}
