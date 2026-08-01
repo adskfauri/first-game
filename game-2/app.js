@@ -99,8 +99,7 @@
   window.PARTY_MISSION_LEVELS = MISSION_LEVELS;
   window.PARTY_MISSIONS = MISSIONS;
 
-})
-();
+})();
 
   const IMPOSSIBLE_MISSION_KEYWORDS = [
     "단체방", "채팅방", "메시지를 보내", "문자를 보내", "전화하게",
