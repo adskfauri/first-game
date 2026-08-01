@@ -1,4 +1,4 @@
-(() => {
+  (() => {
   "use strict";
 
   const MISSION_LEVELS = {
@@ -97,7 +97,8 @@
     { "text": "{target}이(가) 전혀 쓰지 않는 엉뚱한 지역 사투리나 과장된 억양으로 말하게 만드세요.", "hint": "어설프더라도 다른 억양을 시도하면 성공", "level": "crazy", "levelName": "광기", "stars": 5, "emoji": "🤪" }
   ];
 
-})();
+})
+();
 
   const IMPOSSIBLE_MISSION_KEYWORDS = [
     "단체방", "채팅방", "메시지를 보내", "문자를 보내", "전화하게",
