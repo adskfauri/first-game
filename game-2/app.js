@@ -1,5 +1,4 @@
-  (() => {
-  "use strict";
+  (() => { "use strict";
 
   const MISSION_LEVELS = {
     "easy": { "name": "순한맛", "stars": 1, "emoji": "🙂" },
@@ -96,6 +95,9 @@
     { "text": "{target}과 러브샷(팔을 엇갈려 술이나 음료 마시기)을 제안해 성공하세요.", "hint": "거절당하지 않고 러브샷을 완성하면 성공", "level": "crazy", "levelName": "광기", "stars": 5, "emoji": "🤪" },
     { "text": "{target}이(가) 전혀 쓰지 않는 엉뚱한 지역 사투리나 과장된 억양으로 말하게 만드세요.", "hint": "어설프더라도 다른 억양을 시도하면 성공", "level": "crazy", "levelName": "광기", "stars": 5, "emoji": "🤪" }
   ];
+  // 다른 JS에서 사용할 수 있도록 공개
+  window.PARTY_MISSION_LEVELS = MISSION_LEVELS;
+  window.PARTY_MISSIONS = MISSIONS;
 
 })
 ();
